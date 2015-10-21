@@ -53,7 +53,7 @@ void battery_update_proc(Layer *layer, GContext *ctx) {
 
 	snprintf(b_battery_level, sizeof(char)*4, "%d", last_battery_state.charge_percent);
 	graphics_context_set_text_color(ctx, default_color);
-	graphics_draw_text(ctx, b_battery_level, fonts_get_system_font(FONT_KEY_GOTHIC_14), bounds, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+	graphics_draw_text(ctx, b_battery_level, fonts_get_system_font(FONT_KEY_GOTHIC_18), bounds, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
 }
 
@@ -71,7 +71,7 @@ void load_battery(Window *window) {
 	
 	s_battery_text_layer = text_layer_create(text_battery_grect);
 	
-	GRect battery_grect = GRect(124, 0, 20, 20);
+	GRect battery_grect = GRect(120, 0, 24, 24);
 	
 	s_battery_layer = layer_create(battery_grect);
 	layer_set_update_proc(s_battery_layer, battery_update_proc);

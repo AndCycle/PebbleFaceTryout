@@ -34,16 +34,22 @@ void draw_weekday_base_layer(Layer *layer, GContext *ctx) {
 	//graphics_draw_line(ctx, GPoint(font_width*4, 0), GPoint(font_width*4, height_end));
 	for (int i=0; i<7; i++) {
 		int x = font_width*4+(font_width*2+1)*i;
+		/*
 		if (i == 0 || i == 6) {
 			graphics_context_set_fill_color(ctx, default_color);
 		} else {
 			graphics_context_set_fill_color(ctx, default_bg_color);
 		}
+		*/
+		graphics_context_set_fill_color(ctx, default_color);
+		/*
 		graphics_fill_rect(ctx, GRect(x+1, 0, font_width*2, font_height), 0, GCornerNone);
 		graphics_fill_rect(ctx, GRect(x+1, font_height+1, font_width*2, font_height), 0, GCornerNone);
 		if (i != 0 && i != 1 && i != 6) {
 			graphics_draw_line(ctx, GPoint(x, 0), GPoint(x, height_end-1));	
 		}
+		*/
+		graphics_draw_line(ctx, GPoint(x, 0), GPoint(x, height_end-1));	
 	}
 	
 }

@@ -27,19 +27,16 @@ static void main_window_load(Window *window) {
 	window_set_background_color(window, default_bg_color);
 	
 	// draw analog part
-	
 
-	load_analog(window)	;
+	load_analog(window);
 	load_calendar(window);
 	load_digit(window);
 	load_bluetooth(window);
 	load_battery(window);
 	
-	
 	update_digit_time();
 	update_calendar();
 	bluetooth_handler(connection_service_peek_pebble_app_connection());
-	// Ensure battery level is displayed from the start
 	battery_handler(battery_state_service_peek());
 }
 
@@ -90,9 +87,7 @@ static void init() {
     .pebble_app_connection_handler = bluetooth_handler
   });
 
-	// Register for battery level updates
 	battery_state_service_subscribe(battery_handler);
-
 }
 
 static void deinit() {
