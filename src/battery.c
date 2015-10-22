@@ -40,10 +40,8 @@ void battery_update_proc(Layer *layer, GContext *ctx) {
 	graphics_fill_radial(ctx, bounds, GOvalScaleModeFillCircle, 5, 0, TRIG_MAX_ANGLE);
 	
 	GColor batter_color;
-	if (last_battery_state.charge_percent > 70) {
+	if (last_battery_state.charge_percent > 30) {
 		batter_color = GColorGreen;
-	} else if (last_battery_state.charge_percent > 30) {
-		batter_color = GColorOrange;
 	} else {
 		batter_color = GColorRed;
 	}

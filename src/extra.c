@@ -1,19 +1,6 @@
 #include <pebble.h>
 #include "extra.h"
 
-GRect shrink_grect(GRect t_rect, float v) {
-	return GRect(
-			t_rect.origin.x+t_rect.size.w*(1-v)/2,
-			t_rect.origin.y+t_rect.size.h*(1-v)/2,
-			t_rect.size.w*v,
-			t_rect.size.h*v
-		);
-}
-
-GPoint gpoint_from_polar_shrink(GRect bounds, GOvalScaleMode govalscalemode, int32_t angle, float shrink) {
-	return gpoint_from_polar(shrink_grect(bounds, shrink), govalscalemode, angle);
-}
-
 GRect squre_grect(GRect t_rect) {
 	int16_t short_side = t_rect.size.w < t_rect.size.h ? t_rect.size.w : t_rect.size.h;
 	return GRect(
