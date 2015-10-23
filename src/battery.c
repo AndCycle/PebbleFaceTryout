@@ -78,6 +78,6 @@ void load_battery(Window *window) {
 }
 
 void unload_battery(Window *window) {
+	text_layer_destroy(s_battery_text_layer);
 	layer_destroy(s_battery_layer);
-	
 }

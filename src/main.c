@@ -17,8 +17,9 @@ bool enable_second;
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   digit_tick_handler(tick_time, units_changed);
-	calendar_tick_handler(tick_time, units_changed);
 	analog_tick_handler(tick_time, units_changed);
+	calendar_tick_handler(tick_time, units_changed);
+	
 }
 
 
@@ -55,7 +56,7 @@ static void init() {
 	default_bg_color = GColorWhite;
 	
 	enable_second = false;
-	//enable_second = true;
+	enable_second = true;
 	
 	init_calendar();
 	init_digit();

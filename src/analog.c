@@ -10,74 +10,64 @@ Layer *s_analog_sec_hand_layer;
 
 Layer *s_analog_tick_layer;
 
-TextLayer *s_no12_layer[12];
-
-int32_t hour_hand_length;
-int32_t min_hand_length;
-int32_t sec_hand_length;
 int32_t analog_radius;
 
-GRect s_no12_grect[12];
-const char *s_no12buffer[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+typedef enum {
+	HOUR, 
+	MINUTE, 
+	SECOND
+} hand;
 
 
-void draw_analog_hour_hand_layer(Layer *layer, GContext *ctx) {
-	GRect bounds = layer_get_bounds(layer);
-	GOvalScaleMode default_govalscalemode = GOvalScaleModeFitCircle;
-	GPoint center = ret_carry_center(bounds, default_govalscalemode);
+typedef struct {
+	GPoint center;
+  hand my_hand;
+	int32_t hand_length;
+	struct tm *t;
+} hand_data;
 
-	time_t now = time(NULL);
-  struct tm *t = localtime(&now);
+void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
+	
+	hand_data *data = (hand_data *)layer_get_data(layer);
+	GPoint center = data->center;
+  struct tm *t = data->t;
 
-	int32_t hour_angle = (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6);
-	
-	graphics_context_set_stroke_color(ctx, default_color);
-	
-	graphics_context_set_stroke_width(ctx, 3);
-	graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, hour_hand_length));
-	
-	graphics_context_set_stroke_width(ctx, 7);
-	graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*2/10), 
-										 gpoint_to_polar(center, hour_angle, hour_hand_length));
-	
-	graphics_context_set_stroke_width(ctx, 5);
-	graphics_context_set_stroke_color(ctx, default_bg_color);
-	graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*3/10), 
-										 gpoint_to_polar(center, hour_angle, hour_hand_length*9/10));
+	if (data->my_hand == HOUR) {
+		int32_t hour_angle = (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6);
+
+		graphics_context_set_stroke_color(ctx, default_color);
+
+		graphics_context_set_stroke_width(ctx, 3);
+		graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, data->hand_length));
+
+		graphics_context_set_stroke_width(ctx, 7);
+		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*2/10), 
+											 gpoint_to_polar(center, hour_angle, data->hand_length));
+
+		graphics_context_set_stroke_width(ctx, 5);
+		graphics_context_set_stroke_color(ctx, default_bg_color);
+		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*3/10), 
+											 gpoint_to_polar(center, hour_angle, data->hand_length*9/10));
+		
+	} else if (data->my_hand == MINUTE) {
+		
+		int32_t min_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
+
+		graphics_context_set_stroke_color(ctx, default_color);
+
+		graphics_context_set_stroke_width(ctx, 3);
+		graphics_draw_line(ctx, center, gpoint_to_polar(center, min_angle, data->hand_length));
+		graphics_context_set_stroke_width(ctx, 5);
+		graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, analog_radius*0.2), 
+											 gpoint_to_polar(center, min_angle, data->hand_length));
+		
+	} else if (data->my_hand == SECOND) {
+		int32_t second_angle = TRIG_MAX_ANGLE * t->tm_sec / 60;
+		graphics_context_set_stroke_color(ctx, default_color);
+		graphics_draw_line(ctx, center, gpoint_to_polar(center, second_angle, data->hand_length));
+	}
 }
-
-void draw_analog_min_hand_layer(Layer *layer, GContext *ctx) {
-	GRect bounds = layer_get_bounds(layer);
-	GOvalScaleMode default_govalscalemode = GOvalScaleModeFitCircle;
-	GPoint center = ret_carry_center(bounds, default_govalscalemode);
-
-	time_t now = time(NULL);
-  struct tm *t = localtime(&now);
 	
-	int32_t min_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
-	
-	graphics_context_set_stroke_color(ctx, default_color);
-	
-	graphics_context_set_stroke_width(ctx, 3);
-	graphics_draw_line(ctx, center, gpoint_to_polar(center, min_angle, min_hand_length));
-	graphics_context_set_stroke_width(ctx, 5);
-	graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, analog_radius*0.2), 
-										 gpoint_to_polar(center, min_angle, min_hand_length));
-}
-
-void draw_analog_sec_hand_layer(Layer *layer, GContext *ctx) {
-	GRect bounds = layer_get_bounds(layer);
-	GOvalScaleMode default_govalscalemode = GOvalScaleModeFitCircle;
-	GPoint center = ret_carry_center(bounds, default_govalscalemode);
-	
-	time_t now = time(NULL);
-  struct tm *t = localtime(&now);
-
-	int32_t second_angle = TRIG_MAX_ANGLE * t->tm_sec / 60;
-	graphics_context_set_stroke_color(ctx, default_color);
-	graphics_draw_line(ctx, center, gpoint_to_polar(center, second_angle, sec_hand_length));
-}
-
 void draw_tick_layer(Layer *layer, GContext *ctx) {
 	GRect bounds = layer_get_bounds(layer);
 	GOvalScaleMode default_govalscalemode = GOvalScaleModeFitCircle;
@@ -104,6 +94,8 @@ void draw_tick_layer(Layer *layer, GContext *ctx) {
 	for(int32_t angle=0; angle<TRIG_MAX_ANGLE; angle+=(TRIG_MAX_ANGLE/12)) {
 		graphics_draw_line(ctx, gpoint_from_polar(bounds, default_govalscalemode, angle), gpoint_to_polar(center, angle, tick_length));
 	}
+
+	// draw center circle
 	
 	graphics_context_set_stroke_color(ctx, default_color);
 	graphics_context_set_fill_color(ctx, default_bg_color);
@@ -111,13 +103,38 @@ void draw_tick_layer(Layer *layer, GContext *ctx) {
 	
 	graphics_draw_circle(ctx, center, 3);
 	graphics_fill_circle(ctx, center, 2);
+	
+	// draw hour number
+	const char *s_no12buffer[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+	
+	GRect no12_grect = grect_inset(bounds, GEdgeInsets(bounds.size.w/10));
+	graphics_context_set_text_color(ctx, default_color);
+	
+	GRect temp_grect;
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "b x %d y %d w %d h %d", s_no12_rect.origin.x, s_no12_rect.origin.y, s_no12_rect.size.w, s_no12_rect.size.h);
+	for(int i=0; i<12; i+=1) {
+		temp_grect = grect_centered_from_polar(no12_grect, GOvalScaleModeFitCircle, (i+1)*TRIG_MAX_ANGLE/12, GSize(24,24));
+		temp_grect.origin.x += 0;
+		temp_grect.origin.y += -5;
+		graphics_draw_text(ctx, s_no12buffer[i], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), temp_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+	}
+
 }
 
 void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+	hand_data *hand_data_temp;
+	time_t now = time(NULL);
+  struct tm *t = localtime(&now);
 	if (enable_second && units_changed & SECOND_UNIT) {
+		hand_data_temp = (hand_data *)layer_get_data(s_analog_sec_hand_layer);
+		hand_data_temp->t = t;
 		layer_mark_dirty(s_analog_sec_hand_layer);
 	}
 	if (units_changed & MINUTE_UNIT) {
+		hand_data_temp = (hand_data *)layer_get_data(s_analog_min_hand_layer);
+		hand_data_temp->t = t;
+		hand_data_temp = (hand_data *)layer_get_data(s_analog_hour_hand_layer);
+		hand_data_temp->t = t;
 		layer_mark_dirty(s_analog_min_hand_layer);
 		layer_mark_dirty(s_analog_hour_hand_layer);
 	}
@@ -132,49 +149,47 @@ void load_analog(Window *window) {
 	
 	analog_radius = analog_grect.size.w/2;
 	
+	GPoint center = ret_carry_center(analog_grect, GOvalScaleModeFitCircle);
 	
-	hour_hand_length = analog_radius*6/10;
-	s_analog_hour_hand_layer = layer_create(analog_grect);
-	layer_set_update_proc(s_analog_hour_hand_layer, draw_analog_hour_hand_layer);
+	hand_data *hand_data_temp;
+	time_t now = time(NULL);
+  struct tm *t = localtime(&now);
+	
+	s_analog_hour_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_data));
+	hand_data_temp = (hand_data *)layer_get_data(s_analog_hour_hand_layer);
+	hand_data_temp->my_hand = HOUR;
+	hand_data_temp->center = center;
+	hand_data_temp->hand_length = analog_radius*6/10;
+	hand_data_temp->t = t;
+	
+	layer_set_update_proc(s_analog_hour_hand_layer, draw_analog_hand_layer);
 	layer_add_child(window_get_root_layer(window), s_analog_hour_hand_layer);
 
+	s_analog_min_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_data));
+	hand_data_temp = (hand_data *)layer_get_data(s_analog_min_hand_layer);
+	hand_data_temp->my_hand = MINUTE;
+	hand_data_temp->center = center;
+	hand_data_temp->hand_length = analog_radius*8/10;
+	hand_data_temp->t = t;
 	
-	min_hand_length = analog_radius*8/10;
-	s_analog_min_hand_layer = layer_create(analog_grect);
-	layer_set_update_proc(s_analog_min_hand_layer, draw_analog_min_hand_layer);
+	layer_set_update_proc(s_analog_min_hand_layer, draw_analog_hand_layer);
 	layer_add_child(window_get_root_layer(window), s_analog_min_hand_layer);
 	
-	sec_hand_length = analog_radius;
-	
 	if (enable_second) {
-		s_analog_sec_hand_layer = layer_create(analog_grect);
-		layer_set_update_proc(s_analog_sec_hand_layer, draw_analog_sec_hand_layer);
+		s_analog_sec_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_data));
+		hand_data_temp = (hand_data *)layer_get_data(s_analog_sec_hand_layer);
+		hand_data_temp->my_hand = SECOND;
+		hand_data_temp->center = center;
+		hand_data_temp->hand_length = analog_radius;
+		hand_data_temp->t = t;
+		 
+		layer_set_update_proc(s_analog_sec_hand_layer, draw_analog_hand_layer);
 		layer_add_child(window_get_root_layer(window), s_analog_sec_hand_layer);	
 	}
 	
 	s_analog_tick_layer = layer_create(analog_grect);
 	layer_set_update_proc(s_analog_tick_layer, draw_tick_layer);
 	layer_add_child(window_get_root_layer(window), s_analog_tick_layer);
-	
-	//APP_LOG(APP_LOG_LEVEL_DEBUG, "a x %d y %d w %d h %d", analog_grect.origin.x, analog_grect.origin.y, analog_grect.size.w, analog_grect.size.h);
-	GRect s_no12_rect = grect_inset(analog_grect, GEdgeInsets(analog_grect.size.w/10));
-	//APP_LOG(APP_LOG_LEVEL_DEBUG, "b x %d y %d w %d h %d", s_no12_rect.origin.x, s_no12_rect.origin.y, s_no12_rect.size.w, s_no12_rect.size.h);
-	for(int i=0; i<12; i+=1) {
-		s_no12_grect[i] = grect_centered_from_polar(s_no12_rect, GOvalScaleModeFitCircle, (i+1)*TRIG_MAX_ANGLE/12, GSize(24,24));
-		s_no12_grect[i].origin.x += 0;
-		s_no12_grect[i].origin.y += -5;
-		s_no12_layer[i] = text_layer_create(s_no12_grect[i]);
-		text_layer_set_font(s_no12_layer[i], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-		text_layer_set_text_color(s_no12_layer[i], default_color);
-		text_layer_set_background_color(s_no12_layer[i], GColorClear);
-		//text_layer_set_background_color(s_no12_layer[i], GColorRed);
-
-		text_layer_set_text_alignment(s_no12_layer[i], GTextAlignmentCenter);
-		//text_layer_set_overflow_mode
-		text_layer_set_text(s_no12_layer[i], s_no12buffer[i]);
-		layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_no12_layer[i]));
-	}
-	
 }
 
 
@@ -183,9 +198,5 @@ void unload_analog(Window *window) {
 	layer_destroy(s_analog_min_hand_layer);
 	layer_destroy(s_analog_sec_hand_layer);
 	layer_destroy(s_analog_tick_layer);
-	
-	for (int i=0; i<12; i++) {
-		text_layer_destroy(s_no12_layer[i]);
-	}
 }
 

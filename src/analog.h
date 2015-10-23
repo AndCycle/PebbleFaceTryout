@@ -1,14 +1,5 @@
 #pragma once
 
-extern Layer *s_analog_hour_hand_layer;
-extern Layer *s_analog_min_hand_layer;
-extern Layer *s_analog_sec_hand_layer;
-
-
-extern Layer *s_analog_tick_layer;
-
-extern TextLayer *s_no12_layer[12];
-
 void load_analog(Window *);
 void unload_analog(Window *);
 
