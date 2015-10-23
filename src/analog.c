@@ -21,11 +21,11 @@ typedef struct {
 	int32_t hand_length;
 	int32_t analog_radius;
 	struct tm *t;
-} hand_data;
+} hand_layer_data;
 
 void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 	
-	hand_data *data = (hand_data *)layer_get_data(layer);
+	hand_layer_data *data = layer_get_data(layer);
 	GPoint center = data->center;
   struct tm *t = data->t;
 
@@ -37,7 +37,7 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		graphics_context_set_stroke_width(ctx, 3);
 		graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, data->hand_length));
 
-		graphics_context_set_stroke_width(ctx, 7);
+		graphics_context_set_stroke_width(ctx, 9);
 		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, data->analog_radius*2/10), 
 											 gpoint_to_polar(center, hour_angle, data->hand_length));
 
@@ -121,19 +121,19 @@ void draw_tick_layer(Layer *layer, GContext *ctx) {
 }
 
 void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-	hand_data *hand_data_temp;
+	hand_layer_data *temp_hand_layer_data;
 	time_t now = time(NULL);
   struct tm *t = localtime(&now);
 	if (enable_second && units_changed & SECOND_UNIT) {
-		hand_data_temp = (hand_data *)layer_get_data(s_analog_sec_hand_layer);
-		hand_data_temp->t = t;
+		temp_hand_layer_data = layer_get_data(s_analog_sec_hand_layer);
+		temp_hand_layer_data->t = t;
 		layer_mark_dirty(s_analog_sec_hand_layer);
 	}
 	if (units_changed & MINUTE_UNIT) {
-		hand_data_temp = (hand_data *)layer_get_data(s_analog_min_hand_layer);
-		hand_data_temp->t = t;
-		hand_data_temp = (hand_data *)layer_get_data(s_analog_hour_hand_layer);
-		hand_data_temp->t = t;
+		temp_hand_layer_data = layer_get_data(s_analog_min_hand_layer);
+		temp_hand_layer_data->t = t;
+		temp_hand_layer_data = layer_get_data(s_analog_hour_hand_layer);
+		temp_hand_layer_data->t = t;
 		layer_mark_dirty(s_analog_min_hand_layer);
 		layer_mark_dirty(s_analog_hour_hand_layer);
 	}
@@ -150,40 +150,40 @@ void load_analog(Window *window) {
 	
 	GPoint center = ret_carry_center(analog_grect, GOvalScaleModeFitCircle);
 	
-	hand_data *hand_data_temp;
+	hand_layer_data *temp_hand_layer_data;
 	time_t now = time(NULL);
   struct tm *t = localtime(&now);
 	
-	s_analog_hour_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_data));
-	hand_data_temp = (hand_data *)layer_get_data(s_analog_hour_hand_layer);
-	hand_data_temp->my_hand = HOUR;
-	hand_data_temp->center = center;
-	hand_data_temp->analog_radius = analog_radius;
-	hand_data_temp->hand_length = analog_radius*6/10;
-	hand_data_temp->t = t;
+	s_analog_hour_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
+	temp_hand_layer_data = layer_get_data(s_analog_hour_hand_layer);
+	temp_hand_layer_data->my_hand = HOUR;
+	temp_hand_layer_data->center = center;
+	temp_hand_layer_data->analog_radius = analog_radius;
+	temp_hand_layer_data->hand_length = analog_radius*6/10;
+	temp_hand_layer_data->t = t;
 	
 	layer_set_update_proc(s_analog_hour_hand_layer, draw_analog_hand_layer);
 	layer_add_child(window_get_root_layer(window), s_analog_hour_hand_layer);
 
-	s_analog_min_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_data));
-	hand_data_temp = (hand_data *)layer_get_data(s_analog_min_hand_layer);
-	hand_data_temp->my_hand = MINUTE;
-	hand_data_temp->center = center;
-	hand_data_temp->analog_radius = analog_radius;
-	hand_data_temp->hand_length = analog_radius*8/10;
-	hand_data_temp->t = t;
+	s_analog_min_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
+	temp_hand_layer_data = layer_get_data(s_analog_min_hand_layer);
+	temp_hand_layer_data->my_hand = MINUTE;
+	temp_hand_layer_data->center = center;
+	temp_hand_layer_data->analog_radius = analog_radius;
+	temp_hand_layer_data->hand_length = analog_radius*8/10;
+	temp_hand_layer_data->t = t;
 	
 	layer_set_update_proc(s_analog_min_hand_layer, draw_analog_hand_layer);
 	layer_add_child(window_get_root_layer(window), s_analog_min_hand_layer);
 	
 	if (enable_second) {
-		s_analog_sec_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_data));
-		hand_data_temp = (hand_data *)layer_get_data(s_analog_sec_hand_layer);
-		hand_data_temp->my_hand = SECOND;
-		hand_data_temp->center = center;
-		hand_data_temp->analog_radius = analog_radius;
-		hand_data_temp->hand_length = analog_radius;
-		hand_data_temp->t = t;
+		s_analog_sec_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
+		temp_hand_layer_data = layer_get_data(s_analog_sec_hand_layer);
+		temp_hand_layer_data->my_hand = SECOND;
+		temp_hand_layer_data->center = center;
+		temp_hand_layer_data->analog_radius = analog_radius;
+		temp_hand_layer_data->hand_length = analog_radius;
+		temp_hand_layer_data->t = t;
 		 
 		layer_set_update_proc(s_analog_sec_hand_layer, draw_analog_hand_layer);
 		layer_add_child(window_get_root_layer(window), s_analog_sec_hand_layer);	

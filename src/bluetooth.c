@@ -4,8 +4,6 @@
 
 Layer *s_bluetooth_layer;
 
-GPath *s_bluetooth_path_ptr = NULL;
-
 #define BIZoom 4
 
 const GPathInfo BLUETOOTH_PATH_INFO = {
@@ -20,21 +18,30 @@ const GPathInfo BLUETOOTH_PATH_INFO = {
 	// .points = (GPoint []) {{0, 5}, {10, 15}, {5, 20}, {5, 0}, {10, 5}, {0, 15}, {5, 10}}
 };
 
-bool bluetooth_connected;
+typedef struct {
+	GRect bounds;
+	GPath *bluetooth_path_ptr;
+	bool bluetooth_connected;
+} bluetooth_layer_data;
 
 void bluetooth_handler(bool connected) {
-	bluetooth_connected = connected;
+	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(s_bluetooth_layer);
+	temp_bluetooth_layer_data->bluetooth_connected = connected;
 	layer_mark_dirty(s_bluetooth_layer);
   // Show current connection state
 	if (connected) {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Phone is connected!");
+    APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "Phone is connected!");
   } else {
-    APP_LOG(APP_LOG_LEVEL_INFO, "Phone is not connected!");
+    APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "Phone is not connected!");
   }
 }
 
 void update_bluetooth_proc(Layer *layer, GContext *ctx) {
-	GRect bounds = layer_get_bounds(layer);
+	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(layer);
+	GRect bounds = temp_bluetooth_layer_data->bounds;
+	GPath *bluetooth_path_ptr = temp_bluetooth_layer_data->bluetooth_path_ptr;
+	bool bluetooth_connected = temp_bluetooth_layer_data->bluetooth_connected;
+	
 	graphics_context_set_fill_color(ctx, GColorBlue);
 	graphics_fill_rect(ctx, bounds, 4, GCornersAll);
 	
@@ -47,19 +54,19 @@ void update_bluetooth_proc(Layer *layer, GContext *ctx) {
 	}
   
 	graphics_context_set_stroke_width(ctx, 1);
-  gpath_draw_outline(ctx, s_bluetooth_path_ptr);
+  gpath_draw_outline(ctx, bluetooth_path_ptr);
 	// Fill the path:
   graphics_context_set_fill_color(ctx, GColorBlue);
-	gpath_draw_filled(ctx, s_bluetooth_path_ptr);
+	gpath_draw_filled(ctx, bluetooth_path_ptr);
 }
 
 void init_bluetooth() {
-	s_bluetooth_path_ptr = gpath_create(&BLUETOOTH_PATH_INFO);
-	gpath_move_to(s_bluetooth_path_ptr, GPoint(1,1));
+	//s_bluetooth_path_ptr = gpath_create(&BLUETOOTH_PATH_INFO);
+	//gpath_move_to(s_bluetooth_path_ptr, GPoint(1,1));
 }
 
 void deinit_bluetooth() {
-	gpath_destroy(s_bluetooth_path_ptr);
+	//gpath_destroy(s_bluetooth_path_ptr);
 }
 
 void load_bluetooth(Window *window) {
@@ -67,13 +74,21 @@ void load_bluetooth(Window *window) {
 	//GRect bluetooth_grect = GRect(10, 10, 3*BIZoom, 5*BIZoom);
 	GRect bluetooth_grect = GRect(129, 120, 3*BIZoom-1, 5*BIZoom-1);
 	
-	s_bluetooth_layer = layer_create(bluetooth_grect);
+	s_bluetooth_layer = layer_create_with_data(bluetooth_grect, sizeof(bluetooth_layer_data));
+	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(s_bluetooth_layer);
+	temp_bluetooth_layer_data->bounds = layer_get_bounds(s_bluetooth_layer);
+	temp_bluetooth_layer_data->bluetooth_path_ptr = gpath_create(&BLUETOOTH_PATH_INFO);
+	gpath_move_to(temp_bluetooth_layer_data->bluetooth_path_ptr, GPoint(1,1));
+	
 	layer_set_update_proc(s_bluetooth_layer, update_bluetooth_proc);
 	layer_add_child(window_get_root_layer(window), s_bluetooth_layer);
 	
-	
+	bluetooth_handler(connection_service_peek_pebble_app_connection());
 }
 
 void unload_bluetooth(Window * window) {
+	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(s_bluetooth_layer);
+	gpath_destroy(temp_bluetooth_layer_data->bluetooth_path_ptr);
+	
 	layer_destroy(s_bluetooth_layer);
 }

@@ -161,7 +161,7 @@ void load_calendar(Window *window) {
 		layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_2weeks_layer[i]));
 	}
 	
-	
+	update_calendar();
 }
 
 void unload_calendar(Window * window) {

@@ -34,10 +34,6 @@ static void main_window_load(Window *window) {
 	load_bluetooth(window);
 	load_battery(window);
 	
-	update_digit_time();
-	update_calendar();
-	bluetooth_handler(connection_service_peek_pebble_app_connection());
-	battery_handler(battery_state_service_peek());
 }
 
 static void main_window_unload(Window *window) {
