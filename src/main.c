@@ -19,7 +19,6 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   digit_tick_handler(tick_time, units_changed);
 	analog_tick_handler(tick_time, units_changed);
 	calendar_tick_handler(tick_time, units_changed);
-	
 }
 
 

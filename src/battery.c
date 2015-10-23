@@ -24,6 +24,7 @@ const GPathInfo BATTERY_PATH_INFO = {
 BatteryChargeState last_battery_state;
 char *b_battery_level;
 
+
 void battery_handler(BatteryChargeState state) {
   // Record the new battery level
   last_battery_state = state;
@@ -64,10 +65,6 @@ void deinit_battery() {
 }
 
 void load_battery(Window *window) {
-
-	GRect text_battery_grect = GRect(10, 10, 20, 20);
-	
-	s_battery_text_layer = text_layer_create(text_battery_grect);
 	
 	GRect battery_grect = GRect(120, 0, 24, 24);
 	
@@ -78,6 +75,5 @@ void load_battery(Window *window) {
 }
 
 void unload_battery(Window *window) {
-	text_layer_destroy(s_battery_text_layer);
 	layer_destroy(s_battery_layer);
 }

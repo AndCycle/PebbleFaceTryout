@@ -6,11 +6,7 @@
 Layer *s_analog_hour_hand_layer;
 Layer *s_analog_min_hand_layer;
 Layer *s_analog_sec_hand_layer;
-
-
 Layer *s_analog_tick_layer;
-
-int32_t analog_radius;
 
 typedef enum {
 	HOUR, 
@@ -23,6 +19,7 @@ typedef struct {
 	GPoint center;
   hand my_hand;
 	int32_t hand_length;
+	int32_t analog_radius;
 	struct tm *t;
 } hand_data;
 
@@ -41,12 +38,12 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, data->hand_length));
 
 		graphics_context_set_stroke_width(ctx, 7);
-		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*2/10), 
+		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, data->analog_radius*2/10), 
 											 gpoint_to_polar(center, hour_angle, data->hand_length));
 
 		graphics_context_set_stroke_width(ctx, 5);
 		graphics_context_set_stroke_color(ctx, default_bg_color);
-		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*3/10), 
+		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, data->analog_radius*3/10), 
 											 gpoint_to_polar(center, hour_angle, data->hand_length*9/10));
 		
 	} else if (data->my_hand == MINUTE) {
@@ -58,13 +55,15 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		graphics_context_set_stroke_width(ctx, 3);
 		graphics_draw_line(ctx, center, gpoint_to_polar(center, min_angle, data->hand_length));
 		graphics_context_set_stroke_width(ctx, 5);
-		graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, analog_radius*0.2), 
+		graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, data->analog_radius*2/10), 
 											 gpoint_to_polar(center, min_angle, data->hand_length));
 		
 	} else if (data->my_hand == SECOND) {
+		
 		int32_t second_angle = TRIG_MAX_ANGLE * t->tm_sec / 60;
 		graphics_context_set_stroke_color(ctx, default_color);
 		graphics_draw_line(ctx, center, gpoint_to_polar(center, second_angle, data->hand_length));
+		
 	}
 }
 	
@@ -147,7 +146,7 @@ void load_analog(Window *window) {
 
 	analog_grect.origin.y = 0;
 	
-	analog_radius = analog_grect.size.w/2;
+	int32_t analog_radius = analog_grect.size.w/2;
 	
 	GPoint center = ret_carry_center(analog_grect, GOvalScaleModeFitCircle);
 	
@@ -159,6 +158,7 @@ void load_analog(Window *window) {
 	hand_data_temp = (hand_data *)layer_get_data(s_analog_hour_hand_layer);
 	hand_data_temp->my_hand = HOUR;
 	hand_data_temp->center = center;
+	hand_data_temp->analog_radius = analog_radius;
 	hand_data_temp->hand_length = analog_radius*6/10;
 	hand_data_temp->t = t;
 	
@@ -169,6 +169,7 @@ void load_analog(Window *window) {
 	hand_data_temp = (hand_data *)layer_get_data(s_analog_min_hand_layer);
 	hand_data_temp->my_hand = MINUTE;
 	hand_data_temp->center = center;
+	hand_data_temp->analog_radius = analog_radius;
 	hand_data_temp->hand_length = analog_radius*8/10;
 	hand_data_temp->t = t;
 	
@@ -180,6 +181,7 @@ void load_analog(Window *window) {
 		hand_data_temp = (hand_data *)layer_get_data(s_analog_sec_hand_layer);
 		hand_data_temp->my_hand = SECOND;
 		hand_data_temp->center = center;
+		hand_data_temp->analog_radius = analog_radius;
 		hand_data_temp->hand_length = analog_radius;
 		hand_data_temp->t = t;
 		 

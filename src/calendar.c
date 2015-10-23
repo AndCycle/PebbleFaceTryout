@@ -12,11 +12,11 @@ char *b_year;
 char *b_month;	
 char *b_2weeks[14];
 	
-int16_t font_pt = 16;
-int16_t font_height = 11;
-int16_t font_width = 6;
+const int16_t font_pt = 16;
+const int16_t font_height = 11;
+const int16_t font_width = 6;
 
-int16_t font_height_bias = -4;
+const int16_t font_height_bias = -4;
 
 void draw_weekday_base_layer(Layer *layer, GContext *ctx) {
 	GRect bounds = layer_get_bounds(layer);
@@ -123,9 +123,7 @@ void load_calendar(Window *window) {
 	int16_t offset_y = 145;
 	
 	int16_t text_col1_y = offset_y+font_height_bias;
-	int16_t text_col2_y = offset_y+font_height_bias+font_height+1;
-
-	
+	int16_t text_col2_y = offset_y+font_height_bias+font_height+1;	
 	
 	GRect weekday_base_rect = GRect(offset_x, offset_y, font_width*4+1+(font_width*2+1)*7, (font_height+1)*2);
 	s_weekday_base_layer = layer_create(weekday_base_rect);
