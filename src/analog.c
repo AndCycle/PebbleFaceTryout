@@ -27,6 +27,9 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 	
 	hand_layer_data *data = layer_get_data(layer);
 	GPoint center = data->center;
+	int32_t analog_radius = data->analog_radius;
+	int32_t hand_length = data->hand_length;
+	
   struct tm *t = data->t;
 
 	if (data->my_hand == HOUR) {
@@ -35,16 +38,16 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		graphics_context_set_stroke_color(ctx, default_color);
 
 		graphics_context_set_stroke_width(ctx, 3);
-		graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, data->hand_length));
+		graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, hand_length));
 
 		graphics_context_set_stroke_width(ctx, 9);
-		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, data->analog_radius*2/10), 
-											 gpoint_to_polar(center, hour_angle, data->hand_length));
+		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*2/10), 
+											 gpoint_to_polar(center, hour_angle, hand_length));
 
 		graphics_context_set_stroke_width(ctx, 5);
 		graphics_context_set_stroke_color(ctx, default_bg_color);
-		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, data->analog_radius*3/10), 
-											 gpoint_to_polar(center, hour_angle, data->hand_length*9/10));
+		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*3/10), 
+											 gpoint_to_polar(center, hour_angle, hand_length*9/10));
 		
 	} else if (data->my_hand == MINUTE) {
 		
@@ -53,16 +56,16 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		graphics_context_set_stroke_color(ctx, default_color);
 
 		graphics_context_set_stroke_width(ctx, 3);
-		graphics_draw_line(ctx, center, gpoint_to_polar(center, min_angle, data->hand_length));
+		graphics_draw_line(ctx, center, gpoint_to_polar(center, min_angle, hand_length));
 		graphics_context_set_stroke_width(ctx, 5);
-		graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, data->analog_radius*2/10), 
-											 gpoint_to_polar(center, min_angle, data->hand_length));
+		graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, analog_radius*2/10), 
+											 gpoint_to_polar(center, min_angle, hand_length));
 		
 	} else if (data->my_hand == SECOND) {
 		
 		int32_t second_angle = TRIG_MAX_ANGLE * t->tm_sec / 60;
 		graphics_context_set_stroke_color(ctx, default_color);
-		graphics_draw_line(ctx, center, gpoint_to_polar(center, second_angle, data->hand_length));
+		graphics_draw_line(ctx, center, gpoint_to_polar(center, second_angle, hand_length));
 		
 	}
 }

@@ -60,15 +60,6 @@ void update_bluetooth_proc(Layer *layer, GContext *ctx) {
 	gpath_draw_filled(ctx, bluetooth_path_ptr);
 }
 
-void init_bluetooth() {
-	//s_bluetooth_path_ptr = gpath_create(&BLUETOOTH_PATH_INFO);
-	//gpath_move_to(s_bluetooth_path_ptr, GPoint(1,1));
-}
-
-void deinit_bluetooth() {
-	//gpath_destroy(s_bluetooth_path_ptr);
-}
-
 void load_bluetooth(Window *window) {
 	//GRect window_grect = layer_get_frame(window_get_root_layer(window));
 	//GRect bluetooth_grect = GRect(10, 10, 3*BIZoom, 5*BIZoom);

@@ -31,8 +31,8 @@ GPoint ret_carry_center(GRect bounds, GOvalScaleMode govalscalemode) {
 	GPoint center = grect_center_point(&bounds);
 	
 	// trying to avoid carry error
-	GPoint x = gpoint_from_polar(bounds, govalscalemode, DEG_TO_TRIGANGLE(0));
-	GPoint y = gpoint_from_polar(bounds, govalscalemode, DEG_TO_TRIGANGLE(90));
+	GPoint x = gpoint_from_polar(bounds, govalscalemode, TRIG_MAX_ANGLE);
+	GPoint y = gpoint_from_polar(bounds, govalscalemode, TRIG_MAX_ANGLE/4);
 	if (center.x != x.x) {center.x = x.x;};
 	if (center.y != y.y) {center.y = y.y;};
 	return center;

@@ -98,27 +98,17 @@ void update_calendar_day(struct tm *tick_time) {
 	}
 
 	t_unix_time = time(NULL);
-	localtime(&t_unix_time); //sanitize tm struct as localtime point to
+	localtime(&t_unix_time); //sanitize tm struct content before exit
 }
 
-void init_calendar() {
+void load_calendar(Window *window) {
+
 	b_year = calloc(5, sizeof(char));
 	b_month = calloc(3, sizeof(char));	
 	for (int i=0; i<14; i++) {
 		b_2weeks[i] = calloc(3, sizeof(char));
 	}
-}
-
-void deinit_calendar() {
-	free(b_year);
-	free(b_month);
-	for (int i=0; i<14; i++) {
-		free(b_2weeks[i]);
-	}
-}
-
-void load_calendar(Window *window) {
-
+	
 	int16_t offset_x = 0;
 	int16_t offset_y = 145;
 	
@@ -135,7 +125,6 @@ void load_calendar(Window *window) {
 	
 	text_layer_set_font(s_year_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));
 	text_layer_set_text_alignment(s_year_layer, GTextAlignmentCenter);
-	//text_layer_set_overflow_mode(s_year_layer, GTextOverflowModeFill);
 	text_layer_set_text_color(s_year_layer, default_color);
 	text_layer_set_background_color(s_year_layer, GColorClear);
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_year_layer));
@@ -161,7 +150,12 @@ void load_calendar(Window *window) {
 		layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_2weeks_layer[i]));
 	}
 	
-	update_calendar();
+	time_t temp = time(NULL); 
+  struct tm *tick_time = localtime(&temp);
+	
+	update_calendar_day(tick_time);
+	update_calendar_month(tick_time);
+	update_calendar_year(tick_time);
 }
 
 void unload_calendar(Window * window) {
@@ -172,16 +166,15 @@ void unload_calendar(Window * window) {
 	for (int i=0; i<14; i++) {
 		text_layer_destroy(s_2weeks_layer[i]);	
 	}
+
+	free(b_year);
+	free(b_month);
+	for (int i=0; i<14; i++) {
+		free(b_2weeks[i]);
+	}
 }
 
-void update_calendar() {
-	time_t temp = time(NULL); 
-  struct tm *tick_time = localtime(&temp);
-	
-	update_calendar_day(tick_time);
-	update_calendar_month(tick_time);
-	update_calendar_year(tick_time);
-}
+
 
 void calendar_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	if (units_changed & DAY_UNIT) {

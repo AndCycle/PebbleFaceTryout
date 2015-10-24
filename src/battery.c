@@ -15,7 +15,7 @@ void battery_handler(BatteryChargeState state) {
   // Record the new battery level
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);
 	temp_battery_layer_data->battery_state = state;
-	APP_LOG(APP_LOG_LEVEL_INFO, "Battery level %d", state.charge_percent);
+	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "Battery level %d", state.charge_percent);
 	// Update meter
 	layer_mark_dirty(s_battery_layer);
 }
@@ -44,14 +44,6 @@ void battery_update_proc(Layer *layer, GContext *ctx) {
 	snprintf(b_battery_level, sizeof(char)*4, "%d", battery_state.charge_percent);
 	graphics_draw_text(ctx, b_battery_level, fonts_get_system_font(FONT_KEY_GOTHIC_18), bounds, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
-}
-
-
-void init_battery() {
-	
-}
-void deinit_battery() {
-	
 }
 
 void load_battery(Window *window) {

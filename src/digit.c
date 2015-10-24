@@ -7,9 +7,6 @@ TextLayer *s_digit_layer;
 char *b_digit;
 
 void update_digit_time(struct tm *tick_time) {
-	// Get a tm structure
-  //time_t temp = time(NULL); 
-  //struct tm *tick_time = localtime(&temp);
 	
 	if (enable_second) {
 		strftime(b_digit, sizeof(char)*9, "%H:%M:%S", tick_time);	
@@ -28,14 +25,9 @@ void digit_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	}
 }
 
-void init_digit() {
-	b_digit = calloc(9, sizeof(char));
-}
-void deinit_digit() {
-	free(b_digit);
-}
-
 void load_digit(Window *window) {
+	b_digit = calloc(9, sizeof(char));
+	
 	//GRect window_grect = layer_get_frame(window_get_root_layer(window));
 	GRect digit_grect = GRect(116, 140, 33, 32);
 	
@@ -47,7 +39,6 @@ void load_digit(Window *window) {
 	text_layer_set_background_color(s_digit_layer, GColorClear);
 	text_layer_set_text_alignment(s_digit_layer, GTextAlignmentLeft);
 	layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_digit_layer));
-
 	
 	time_t temp = time(NULL); 
 	struct tm *tick_time = localtime(&temp);
@@ -56,4 +47,6 @@ void load_digit(Window *window) {
 
 void unload_digit(Window * window) {
 	text_layer_destroy(s_digit_layer);
+	
+	free(b_digit);
 }

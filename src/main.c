@@ -53,11 +53,6 @@ static void init() {
 	enable_second = false;
 	enable_second = true;
 	
-	init_calendar();
-	init_digit();
-	init_bluetooth();
-	init_battery();
-	
 	// Create main Window element and assign to pointer
   s_main_window = window_create();
 
@@ -89,10 +84,6 @@ static void init() {
 static void deinit() {
   // Destroy Window
   window_destroy(s_main_window);
-	deinit_calendar();
-	deinit_digit();
-	deinit_bluetooth();
-	deinit_battery();
 }
 
 int main(void) {
