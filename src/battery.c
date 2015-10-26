@@ -8,12 +8,16 @@ TextLayer *s_battery_text_layer;
 typedef struct {
 	GRect bounds;
 	BatteryChargeState battery_state;
-	char *b_battery_level;
 } battery_layer_data;
 
 void battery_handler(BatteryChargeState state) {
   // Record the new battery level
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);
+	if (temp_battery_layer_data->battery_state.charge_percent == state.charge_percent) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "battery state doesnt change");
+		//nothing changed
+		return;
+	}
 	temp_battery_layer_data->battery_state = state;
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "Battery level %d", state.charge_percent);
 	// Update meter
@@ -25,7 +29,7 @@ void battery_update_proc(Layer *layer, GContext *ctx) {
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);
 	GRect bounds = temp_battery_layer_data->bounds;
 	BatteryChargeState battery_state = temp_battery_layer_data->battery_state;
-	char *b_battery_level = temp_battery_layer_data->b_battery_level;
+	static char b_battery_level[4];
 	
 	graphics_context_set_fill_color(ctx, GColorLightGray);
 	graphics_fill_radial(ctx, bounds, GOvalScaleModeFillCircle, 5, 0, TRIG_MAX_ANGLE);
@@ -53,7 +57,6 @@ void load_battery(Window *window) {
 	s_battery_layer = layer_create_with_data(battery_grect, sizeof(battery_layer_data));
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);
 	temp_battery_layer_data->bounds = layer_get_bounds(s_battery_layer);
-	temp_battery_layer_data->b_battery_level = calloc(4, sizeof(char));
 	layer_set_update_proc(s_battery_layer, battery_update_proc);
 	layer_add_child(window_get_root_layer(window), s_battery_layer);
 
@@ -62,6 +65,5 @@ void load_battery(Window *window) {
 
 void unload_battery(Window *window) {
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);
-	free(temp_battery_layer_data->b_battery_level);
 	layer_destroy(s_battery_layer);
 }

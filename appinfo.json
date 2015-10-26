@@ -1,7 +1,13 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "KEY_FUNC": 1,
+        "KEY_JS_READY": 0,
+        "KEY_WEATHER": 2,
+        "KEY_WEATHER_CONDITIONS": 4,
+        "KEY_WEATHER_TEMPERATURE": 3
+    },
     "capabilities": [
-        ""
+        "location"
     ],
     "companyName": "AndCycle",
     "longName": "test6",

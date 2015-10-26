@@ -47,7 +47,7 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		graphics_context_set_stroke_width(ctx, 5);
 		graphics_context_set_stroke_color(ctx, default_bg_color);
 		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*3/10), 
-											 gpoint_to_polar(center, hour_angle, hand_length*9/10));
+											 gpoint_to_polar(center, hour_angle, hand_length*8/10));
 		
 	} else if (data->my_hand == MINUTE) {
 		

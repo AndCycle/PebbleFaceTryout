@@ -26,6 +26,10 @@ typedef struct {
 
 void bluetooth_handler(bool connected) {
 	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(s_bluetooth_layer);
+	if (temp_bluetooth_layer_data->bluetooth_connected == connected) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "connect state doesnt change");
+		return;
+	}
 	temp_bluetooth_layer_data->bluetooth_connected = connected;
 	layer_mark_dirty(s_bluetooth_layer);
   // Show current connection state
