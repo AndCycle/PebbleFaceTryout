@@ -1,6 +1,10 @@
 #include <pebble.h>
 #include "extra.h"
 
+struct tm * sanitize_localtime() {
+	return localtime(&(time_t){time(NULL)}); //sanitize localtime tm struct pointer
+}
+
 GRect squre_grect(GRect t_rect) {
 	int16_t short_side = t_rect.size.w < t_rect.size.h ? t_rect.size.w : t_rect.size.h;
 	return GRect(

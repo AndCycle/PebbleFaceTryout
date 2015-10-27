@@ -61,7 +61,7 @@ function getWeather() {
   navigator.geolocation.getCurrentPosition(
     locationSuccess,
     locationError,
-		{timeout: 60*1000, maximumAge: 60*60*1000, enableHighAccuracy: false}
+		{timeout: 0, maximumAge: Infinity, enableHighAccuracy: false}
   );
 }
 

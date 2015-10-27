@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "calendar.h"
 #include "main.h"
+#include "extra.h"
 
 Layer *s_weekday_base_layer;
 
@@ -67,25 +68,24 @@ void update_calendar_month(struct tm *tick_time) {
 
 void update_calendar_day(struct tm *tick_time) {
 
-	time_t t_unix_time = time(NULL); //DO NOT USE mktime, it alter tm struct and shift time.
+	//struct tm *c_tm = localtime(&t_unix_time);
+	struct tm c_tm = *tick_time;
 	
-	struct tm *c_tm = localtime(&t_unix_time);
-	int c_mday = tick_time->tm_mday;
-	
-	if (c_tm->tm_wday < 2) {
-		t_unix_time -= (7*86400);
+	if (c_tm.tm_wday < 2) {
+		c_tm.tm_mday -= 7;
 	}
-	t_unix_time -= (c_tm->tm_wday*86400);
-		
-	for (int i=0; i<14; i++, t_unix_time += 86400) {
-		c_tm = localtime(&t_unix_time);
+	c_tm.tm_mday -= c_tm.tm_wday;
 
-		if (c_tm->tm_mday == c_mday) {
+		
+	for (int i=0; i<14; i++, c_tm.tm_mday += 1) {
+		mktime(&c_tm);
+
+		if (c_tm.tm_mday == tick_time->tm_mday) {
 			text_layer_set_font(s_2weeks_layer[i], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD));	
 		} else {
 			text_layer_set_font(s_2weeks_layer[i], fonts_get_system_font(FONT_KEY_GOTHIC_14));	
 		}
-		if (c_tm->tm_wday == 0 || c_tm->tm_wday == 6) {
+		if (c_tm.tm_wday == 0 || c_tm.tm_wday == 6) {
 			text_layer_set_text_color(s_2weeks_layer[i], GColorRed);
 			//text_layer_set_text_color(s_2weeks_layer[i], default_bg_color);
 			//text_layer_set_background_color(s_2weeks_layer[i], GColorBlack);
@@ -93,12 +93,9 @@ void update_calendar_day(struct tm *tick_time) {
 			text_layer_set_text_color(s_2weeks_layer[i], default_color);
 		}
 		
-		strftime(b_2weeks[i], sizeof(3*sizeof(char)), "%d", c_tm);
+		strftime(b_2weeks[i], sizeof(3*sizeof(char)), "%d", &c_tm);
 		text_layer_set_text(s_2weeks_layer[i], b_2weeks[i]);
 	}
-
-	t_unix_time = time(NULL);
-	localtime(&t_unix_time); //sanitize tm struct content before exit
 }
 
 void load_calendar(Window *window) {
@@ -149,10 +146,8 @@ void load_calendar(Window *window) {
 		text_layer_set_background_color(s_2weeks_layer[i], GColorClear);
 		layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_2weeks_layer[i]));
 	}
-	
-	time_t temp = time(NULL); 
-  struct tm *tick_time = localtime(&temp);
-	
+
+	struct tm * tick_time = sanitize_localtime();
 	update_calendar_day(tick_time);
 	update_calendar_month(tick_time);
 	update_calendar_year(tick_time);

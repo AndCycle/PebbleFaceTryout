@@ -1,5 +1,7 @@
 #pragma once
 
+struct tm * sanitize_localtime();
+
 GRect squre_grect(GRect);
 GRect odd_grect(GRect);
 

@@ -14,7 +14,7 @@ void battery_handler(BatteryChargeState state) {
   // Record the new battery level
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);
 	if (temp_battery_layer_data->battery_state.charge_percent == state.charge_percent) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "battery state doesnt change");
+		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "battery state doesnt change, skip");
 		//nothing changed
 		return;
 	}
