@@ -1,5 +1,7 @@
 #pragma once
 
+bool angle_check(int32_t, int32_t, int32_t);
+
 struct tm * sanitize_localtime();
 
 GRect squre_grect(GRect);

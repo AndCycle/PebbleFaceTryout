@@ -48,11 +48,12 @@ void battery_update_proc(Layer *layer, GContext *ctx) {
 	snprintf(b_battery_level, sizeof(char)*4, "%d", battery_state.charge_percent);
 	graphics_draw_text(ctx, b_battery_level, fonts_get_system_font(FONT_KEY_GOTHIC_18), bounds, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
+	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw battery");
 }
 
 void load_battery(Window *window) {
 	
-	GRect battery_grect = GRect(120, 0, 24, 24);
+	GRect battery_grect = GRect(120, 144, 24, 24);
 	
 	s_battery_layer = layer_create_with_data(battery_grect, sizeof(battery_layer_data));
 	battery_layer_data *temp_battery_layer_data = layer_get_data(s_battery_layer);

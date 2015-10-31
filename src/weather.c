@@ -42,8 +42,10 @@ void process_weather_app_message(DictionaryIterator *iterator, void *context) {
       snprintf(temperature_buffer, sizeof(temperature_buffer), "%dC", (int)t->value->int32);
       break;
     case KEY_WEATHER_CONDITIONS:
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", t->value->cstring);
-      snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
+			//APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", t->value->cstring);
+      //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%d", (int)t->value->int32);
+      snprintf(conditions_buffer, sizeof(conditions_buffer), "%d", (int)t->value->int32);
       break;
 		case KEY_WEATHER:
 			// just identifier
@@ -74,7 +76,7 @@ void weather_handler(struct tm * tick_time, TimeUnits units_changed) {
 }
 
 void load_weather(Window *window) {
-	s_weather_layer = text_layer_create(GRect(0,40,144,50));
+	s_weather_layer = text_layer_create(GRect(0,0,144,50));
 	//text_layer_set_text_color(s_weather_layer, GColorWhite);
   text_layer_set_text_alignment(s_weather_layer, GTextAlignmentCenter);
 	text_layer_set_background_color(s_weather_layer, GColorClear);

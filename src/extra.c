@@ -1,6 +1,16 @@
 #include <pebble.h>
 #include "extra.h"
 
+bool angle_check(int32_t a, int32_t b, int32_t range) {
+
+	if ((a-range) <= b && b <= (a+range)) {
+		return true;
+	} else if ((a-range) <= (b+TRIG_MAX_ANGLE) && (b+TRIG_MAX_ANGLE) <= (a+range)) {
+		return true;
+	}
+	return false;
+}
+
 struct tm * sanitize_localtime() {
 	return localtime(&(time_t){time(NULL)}); //sanitize localtime tm struct pointer
 }

@@ -29,7 +29,7 @@ void load_digit(Window *window) {
 	b_digit = calloc(9, sizeof(char));
 	
 	//GRect window_grect = layer_get_frame(window_get_root_layer(window));
-	GRect digit_grect = GRect(116, 140, 33, 32);
+	GRect digit_grect = GRect(116, 24, 33, 32);
 	
 	s_digit_layer = text_layer_create(digit_grect);
 	

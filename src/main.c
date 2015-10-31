@@ -8,6 +8,7 @@
 #include "battery.h"
 #include "weather.h"
 
+#include "extra.h"
   
 //#define KEY_TEMPERATURE 0
 //#define KEY_CONDITIONS 1
@@ -46,9 +47,12 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+	
+  tick_time = sanitize_localtime(); //there seems no guarantee on tick_time, make our own.
+	
   digit_tick_handler(tick_time, units_changed);
 	analog_tick_handler(tick_time, units_changed);
-	calendar_tick_handler(tick_time, units_changed);
+	//calendar_tick_handler(tick_time, units_changed);
 	weather_handler(tick_time, units_changed);
 }
 
@@ -57,10 +61,8 @@ static void main_window_load(Window *window) {
 	
 	window_set_background_color(window, default_bg_color);
 	
-	// draw analog part
-
 	load_analog(window);
-	load_calendar(window);
+	//load_calendar(window);
 	load_digit(window);
 	load_bluetooth(window);
 	load_battery(window);
@@ -68,7 +70,7 @@ static void main_window_load(Window *window) {
 }
 
 static void main_window_unload(Window *window) {
-	unload_calendar(window);
+	//unload_calendar(window);
 	unload_analog(window);
 	unload_digit(window);
 	unload_bluetooth(window);
@@ -111,16 +113,17 @@ static void init() {
   });
 
 	battery_state_service_subscribe(battery_handler);
-	
+
 	// Register callbacks
 	app_message_register_inbox_received(inbox_received_callback);
 	app_message_register_inbox_dropped(inbox_dropped_callback);
 	app_message_register_outbox_failed(outbox_failed_callback);
 	app_message_register_outbox_sent(outbox_sent_callback);
+	
 	// Open AppMessage
 	//app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 	app_message_open(APP_MESSAGE_INBOX_SIZE_MINIMUM, APP_MESSAGE_OUTBOX_SIZE_MINIMUM);
-	
+
 }
 
 static void deinit() {

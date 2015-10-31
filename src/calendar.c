@@ -71,6 +71,12 @@ void update_calendar_day(struct tm *tick_time) {
 	//struct tm *c_tm = localtime(&t_unix_time);
 	struct tm c_tm = *tick_time;
 	
+	//trick, mktime touch timezone
+	mktime(&c_tm);
+	c_tm.tm_year = tick_time->tm_year;
+	c_tm.tm_mon = tick_time->tm_mon;
+	c_tm.tm_mday = tick_time->tm_mday;
+	
 	if (c_tm.tm_wday < 2) {
 		c_tm.tm_mday -= 7;
 	}

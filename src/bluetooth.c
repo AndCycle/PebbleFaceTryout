@@ -62,12 +62,15 @@ void update_bluetooth_proc(Layer *layer, GContext *ctx) {
 	// Fill the path:
   graphics_context_set_fill_color(ctx, GColorBlue);
 	gpath_draw_filled(ctx, bluetooth_path_ptr);
+	
+	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw bluetooth");
 }
 
 void load_bluetooth(Window *window) {
 	//GRect window_grect = layer_get_frame(window_get_root_layer(window));
 	//GRect bluetooth_grect = GRect(10, 10, 3*BIZoom, 5*BIZoom);
-	GRect bluetooth_grect = GRect(129, 120, 3*BIZoom-1, 5*BIZoom-1);
+	GRect bluetooth_grect = GRect(4, 146, 3*BIZoom-1, 5*BIZoom-1);
+	//GRect bluetooth_grect = GRect(0, 150, 3*BIZoom-1, 5*BIZoom-1);
 	
 	s_bluetooth_layer = layer_create_with_data(bluetooth_grect, sizeof(bluetooth_layer_data));
 	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(s_bluetooth_layer);

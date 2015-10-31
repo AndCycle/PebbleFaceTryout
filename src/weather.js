@@ -30,7 +30,8 @@ function locationSuccess(pos) {
       console.log("Temperature is " + temperature);
 
       // Conditions
-      var conditions = json.list[0].weather[0].main;      
+      //var conditions = json.list[0].weather[0].main; 
+			var conditions = json.list[0].weather[0].id;
       console.log("Conditions are " + conditions);
       
       // Assemble dictionary using our keys
@@ -61,11 +62,14 @@ function getWeather() {
   navigator.geolocation.getCurrentPosition(
     locationSuccess,
     locationError,
-		{timeout: 0, maximumAge: Infinity, enableHighAccuracy: false}
+		{timeout: 60*1000, maximumAge: 60*60*1000, enableHighAccuracy: false}
   );
 }
 
-function announce_ready() {
+function announce_ready(delay_ms) {
+	
+	delay_ms = typeof delay_ms !== 'undefined' ? delay_ms : 1000;
+
 
 	// Assemble dictionary using our keys
 	var dictionary = {
@@ -79,7 +83,12 @@ function announce_ready() {
 												},
 												function(e) {
 													console.log("Error sending announce js ready to Pebble!");
-													setTimeout(announce_ready, 1000); //try again
+													
+													delay_ms = delay_ms*2;
+													if (delay_ms > 3600*1000) {
+														delay_ms = 3600*1000;
+													}
+													setTimeout(announce_ready, delay_ms, delay_ms); //try again
 												}
 											 );
     // Get the initial weather
