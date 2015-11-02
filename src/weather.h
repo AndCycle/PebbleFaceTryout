@@ -9,3 +9,6 @@ void weather_handler(struct tm *, TimeUnits);
 
 void load_weather(Window *);
 void unload_weather(Window *);
+
+void init_weather();
+void deinit_weather();

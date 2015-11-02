@@ -13,6 +13,10 @@
 //#define KEY_TEMPERATURE 0
 //#define KEY_CONDITIONS 1
 
+enum {
+	KEY_JS_READY = 0,
+	KEY_WEATHER = 2,
+};
 
 Window *s_main_window;
 
@@ -28,7 +32,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	}
 	
 	if (dict_find(iterator, KEY_WEATHER)) {
-		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "go weather");
+		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "process weather req result");
 		process_weather_app_message(iterator, context);
 	}
 	
@@ -87,6 +91,8 @@ static void init() {
 	enable_second = false;
 	//enable_second = true;
 	
+	init_weather();
+	
 	// Create main Window element and assign to pointer
   s_main_window = window_create();
 
@@ -129,6 +135,8 @@ static void init() {
 static void deinit() {
   // Destroy Window
   window_destroy(s_main_window);
+	
+	deinit_weather();
 }
 
 int main(void) {

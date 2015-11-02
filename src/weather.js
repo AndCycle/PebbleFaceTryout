@@ -34,11 +34,15 @@ function locationSuccess(pos) {
 			var conditions = json.list[0].weather[0].id;
       console.log("Conditions are " + conditions);
       
+			var icon = json.list[0].weather[0].icon;
+			console.log("Icon are " + icon);
+			
       // Assemble dictionary using our keys
       var dictionary = {
 				"KEY_WEATHER": true,
         "KEY_WEATHER_TEMPERATURE": temperature,
-        "KEY_WEATHER_CONDITIONS": conditions
+        "KEY_WEATHER_CONDITIONS_ID": conditions,
+				"KEY_WEATHER_ICON_ID": icon
       };
 
       // Send to Pebble

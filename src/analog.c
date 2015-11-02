@@ -92,6 +92,9 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, hand_length, 0, day_angle);
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog day");
 		} else {
+			
+			day_angle -= (TRIG_MAX_ANGLE/c_tm.tm_mday); // center day 1
+			
 			int32_t hour_angle = (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6);
 			int32_t min_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
 			int32_t half_12 = TRIG_MAX_ANGLE/24;

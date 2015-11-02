@@ -3,7 +3,8 @@
         "KEY_FUNC": 1,
         "KEY_JS_READY": 0,
         "KEY_WEATHER": 2,
-        "KEY_WEATHER_CONDITIONS": 4,
+        "KEY_WEATHER_CONDITIONS_ID": 4,
+        "KEY_WEATHER_ICON_ID": 5,
         "KEY_WEATHER_TEMPERATURE": 3
     },
     "capabilities": [
@@ -13,7 +14,98 @@
     "longName": "test6",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/50n.png",
+                "name": "OWM_50N",
+                "type": "png"
+            },
+            {
+                "file": "images/50d.png",
+                "name": "OWM_50D",
+                "type": "png"
+            },
+            {
+                "file": "images/13n.png",
+                "name": "OWM_13N",
+                "type": "png"
+            },
+            {
+                "file": "images/13d.png",
+                "name": "OWM_13D",
+                "type": "png"
+            },
+            {
+                "file": "images/11n.png",
+                "name": "OWM_11N",
+                "type": "png"
+            },
+            {
+                "file": "images/11d.png",
+                "name": "OWM_11D",
+                "type": "png"
+            },
+            {
+                "file": "images/10n.png",
+                "name": "OWM_10N",
+                "type": "png"
+            },
+            {
+                "file": "images/10d.png",
+                "name": "OWM_10D",
+                "type": "png"
+            },
+            {
+                "file": "images/09n.png",
+                "name": "OWM_09N",
+                "type": "png"
+            },
+            {
+                "file": "images/09d.png",
+                "name": "OWM_09D",
+                "type": "png"
+            },
+            {
+                "file": "images/04n.png",
+                "name": "OWM_04N",
+                "type": "png"
+            },
+            {
+                "file": "images/04d.png",
+                "name": "OWM_04D",
+                "type": "png"
+            },
+            {
+                "file": "images/03n.png",
+                "name": "OWM_03N",
+                "type": "png"
+            },
+            {
+                "file": "images/03d.png",
+                "name": "OWM_03D",
+                "type": "png"
+            },
+            {
+                "file": "images/02n.png",
+                "name": "OWM_02N",
+                "type": "png"
+            },
+            {
+                "file": "images/02d.png",
+                "name": "OWM_02D",
+                "type": "png"
+            },
+            {
+                "file": "images/01n.png",
+                "name": "OWM_01N",
+                "type": "png"
+            },
+            {
+                "file": "images/01d.png",
+                "name": "OWM_01D",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "test6",
