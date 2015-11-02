@@ -28,6 +28,9 @@ function locationSuccess(pos) {
       // Temperature in Kelvin requires adjustment
       var temperature = Math.round(json.list[0].main.temp - 273.15);
       console.log("Temperature is " + temperature);
+			
+			var temperature_min = Math.round(json.list[0].main.temp_min - 273.15);
+			var temperature_max = Math.round(json.list[0].main.temp_max - 273.15);
 
       // Conditions
       //var conditions = json.list[0].weather[0].main; 
@@ -41,6 +44,8 @@ function locationSuccess(pos) {
       var dictionary = {
 				"KEY_WEATHER": true,
         "KEY_WEATHER_TEMPERATURE": temperature,
+				"KEY_WEATHER_TEMPERATURE_MIN": temperature_min,
+				"KEY_WEATHER_TEMPERATURE_MAX": temperature_max,
         "KEY_WEATHER_CONDITIONS_ID": conditions,
 				"KEY_WEATHER_ICON_ID": icon
       };

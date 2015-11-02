@@ -3,9 +3,11 @@
         "KEY_FUNC": 1,
         "KEY_JS_READY": 0,
         "KEY_WEATHER": 2,
-        "KEY_WEATHER_CONDITIONS_ID": 4,
-        "KEY_WEATHER_ICON_ID": 5,
-        "KEY_WEATHER_TEMPERATURE": 3
+        "KEY_WEATHER_CONDITIONS_ID": 6,
+        "KEY_WEATHER_ICON_ID": 7,
+        "KEY_WEATHER_TEMPERATURE": 3,
+        "KEY_WEATHER_TEMPERATURE_MAX": 5,
+        "KEY_WEATHER_TEMPERATURE_MIN": 4
     },
     "capabilities": [
         "location"
@@ -15,6 +17,56 @@
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "data/Pebble_25x25_Generic_warning.pdc",
+                "name": "GENERIC_WARNING",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Sunny_day.pdc",
+                "name": "TIMELINE_SUN",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Raining_and_snowing.pdc",
+                "name": "RAINING_AND_SNOWING",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Partly_cloudy.pdc",
+                "name": "PARTLY_CLOUDY",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Light_snow.pdc",
+                "name": "LIGHT_SNOW",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Light_rain.pdc",
+                "name": "LIGHT_RAIN",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Heavy_snow.pdc",
+                "name": "HEAVY_SNOW",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Heavy_rain.pdc",
+                "name": "HEAVY_RAIN",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Generic_weather.pdc",
+                "name": "TIMELINE_WEATHER",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Cloudy_day.pdc",
+                "name": "CLOUDY_DAY",
+                "type": "raw"
+            },
             {
                 "file": "images/50n.png",
                 "name": "OWM_50N",
