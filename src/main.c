@@ -88,8 +88,10 @@ static void init() {
 	default_color = GColorBlack;
 	default_bg_color = GColorWhite;
 	
+	/*
 	default_color = GColorWhite;
 	default_bg_color = GColorBlack;
+	*/
 	
 	enable_second = false;
 	//enable_second = true;

@@ -179,12 +179,13 @@ void weather_handler(struct tm * tick_time, TimeUnits units_changed) {
 void load_weather(Window *window) {
 	s_weather_layer = text_layer_create(GRect(0,0,144,50));
 	//text_layer_set_text_color(s_weather_layer, GColorWhite);
+	text_layer_set_text_color(s_weather_layer, default_color);
   text_layer_set_text_alignment(s_weather_layer, GTextAlignmentCenter);
 	text_layer_set_background_color(s_weather_layer, GColorClear);
 	text_layer_set_font(s_weather_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
 	
 	
-  s_weather_icon_layer = bitmap_layer_create(GRect(-4, -8, 50, 50));
+  s_weather_icon_layer = bitmap_layer_create(GRect(100, -8, 50, 50));
 	//bitmap_layer_set_background_color(s_weather_icon_layer, GColorWhite);
 	bitmap_layer_set_compositing_mode(s_weather_icon_layer, GCompOpSet);
   	
