@@ -68,7 +68,7 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 			int32_t month_angle = (TRIG_MAX_ANGLE*(t->tm_mon+1)+TRIG_MAX_ANGLE/2)/12;
 			graphics_context_set_text_color(ctx, default_color);
 			GRect temp_grect = grect_centered_from_polar(grect_inset(bounds, GEdgeInsets(hand_length/2)), GOvalScaleModeFitCircle, month_angle, GSize(18,18));
-			graphics_context_set_fill_color(ctx, GColorWhite);
+			graphics_context_set_fill_color(ctx, default_bg_color);
 			graphics_context_set_stroke_color(ctx, GColorDarkGray);
 			graphics_fill_rect(ctx, temp_grect, 1, GCornersAll);
 			graphics_draw_round_rect(ctx, temp_grect, 1);
@@ -111,7 +111,7 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 			
 			graphics_context_set_text_color(ctx, default_color);
 			GRect temp_grect = grect_centered_from_polar(grect_inset(bounds, GEdgeInsets(hand_length/2)), GOvalScaleModeFitCircle, day_angle, GSize(24,24));
-			graphics_context_set_fill_color(ctx, GColorWhite);
+			graphics_context_set_fill_color(ctx, default_bg_color);
 			graphics_context_set_stroke_color(ctx, GColorDarkGray);
 			graphics_fill_rect(ctx, grect_inset(temp_grect, GEdgeInsets(2)), 1, GCornersAll);
 			graphics_draw_round_rect(ctx, grect_inset(temp_grect, GEdgeInsets(2)), 1);
@@ -142,7 +142,7 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 		} else {
 			graphics_context_set_text_color(ctx, default_color);
 			GRect temp_grect = grect_centered_from_polar(grect_inset(bounds, GEdgeInsets(hand_length/2)), GOvalScaleModeFitCircle, wday_angle-TRIG_MAX_ANGLE/2/7, GSize(20,20));
-			graphics_context_set_fill_color(ctx, GColorWhite);
+			graphics_context_set_fill_color(ctx, default_bg_color);
 			graphics_context_set_stroke_color(ctx, GColorDarkGray);
 			graphics_fill_rect(ctx, temp_grect, 1, GCornersAll);
 			graphics_draw_round_rect(ctx, temp_grect, 1);
