@@ -41,7 +41,7 @@ int32_t last_weather_condition_id = 0;
 char last_weather_icon_id[4];
 
 bool weather_expire() {
-	if ((last_weather_fetch_time+valid_weather_age) < time(NULL)) {
+	if (time(NULL) > (last_weather_fetch_time+valid_weather_age)) {
 		return true;
 	}
 	return false;

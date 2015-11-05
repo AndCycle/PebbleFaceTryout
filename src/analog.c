@@ -249,12 +249,22 @@ void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	hand_layer_data *temp_hand_layer_data;
 
 	if (enable_second && units_changed & SECOND_UNIT) {
+		if (layer_get_hidden(s_analog_sec_hand_layer)) {
+			layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
+		}
+		
 		temp_hand_layer_data = layer_get_data(s_analog_sec_hand_layer);
 		temp_hand_layer_data->t = tick_time;
 		layer_mark_dirty(s_analog_sec_hand_layer);
-		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog second");
+		//APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog second");
 	}
+	
 	if (units_changed & MINUTE_UNIT) {
+		if (!layer_get_hidden(s_analog_sec_hand_layer)) {
+			layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
+		}
+		
+		
 		temp_hand_layer_data = layer_get_data(s_analog_min_hand_layer);
 		temp_hand_layer_data->t = tick_time;
 		temp_hand_layer_data = layer_get_data(s_analog_hour_hand_layer);
@@ -303,6 +313,11 @@ void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 		
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog day");
 	}
+}
+
+void refresh_analog_enable_second() {
+	layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
+	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "change analog second status");
 }
 
 
@@ -430,21 +445,23 @@ void load_analog(Window *window) {
 	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
 	layer_add_child(window_get_root_layer(window), temp_layer);
 	
-	if (enable_second) {
-		s_analog_sec_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-		temp_layer = s_analog_sec_hand_layer;
-		temp_hand_layer_data = layer_get_data(temp_layer);
-		temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
-		temp_hand_layer_data->my_hand = SECOND;
-		temp_hand_layer_data->center = center;
-		temp_hand_layer_data->analog_radius = analog_radius;
-		temp_hand_layer_data->hand_length = analog_radius;
-		temp_hand_layer_data->t = t;
-		 
-		layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-		layer_add_child(window_get_root_layer(window), temp_layer);	
-	}
 	
+	s_analog_sec_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
+	temp_layer = s_analog_sec_hand_layer;
+	temp_hand_layer_data = layer_get_data(temp_layer);
+	temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
+	temp_hand_layer_data->my_hand = SECOND;
+	temp_hand_layer_data->center = center;
+	temp_hand_layer_data->analog_radius = analog_radius;
+	temp_hand_layer_data->hand_length = analog_radius;
+	temp_hand_layer_data->t = t;
+	
+	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
+	layer_add_child(window_get_root_layer(window), temp_layer);	
+	
+	layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
+	
+	refresh_analog_enable_second();
 		
 	// tick
 	

@@ -24,6 +24,8 @@ GColor default_color;
 GColor default_bg_color;
 
 bool enable_second;
+time_t enable_second_expire;
+const time_t enable_second_age = 60;
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 	
@@ -54,6 +56,16 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	
   tick_time = sanitize_localtime(); //there seems no guarantee on tick_time, make our own.
 	
+	if (enable_second) {
+		if (time(NULL) > enable_second_expire) {
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "disable sec");
+			enable_second = false;
+			tick_timer_service_unsubscribe();
+			tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+			units_changed |= MINUTE_UNIT;
+		}
+	}
+	
   digit_tick_handler(tick_time, units_changed);
 	analog_tick_handler(tick_time, units_changed);
 	//calendar_tick_handler(tick_time, units_changed);
@@ -83,6 +95,18 @@ static void main_window_unload(Window *window) {
 	
 }
 
+void tap_handler(AccelAxisType axis, int32_t direction) {
+	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "accel tap!");
+	enable_second_expire = time(NULL) + enable_second_age;
+	if (!enable_second) {
+		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "enable sec");
+		enable_second = true;
+		tick_timer_service_unsubscribe();
+		tick_timer_service_subscribe(SECOND_UNIT, tick_handler);	
+	}
+}
+
+
 static void init() {
 	
 	default_color = GColorBlack;
@@ -101,6 +125,7 @@ static void init() {
 	// Create main Window element and assign to pointer
   s_main_window = window_create();
 
+	
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
@@ -114,6 +139,9 @@ static void init() {
 	} else {
 		tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 	}
+
+	accel_tap_service_subscribe(tap_handler);
+
 
 
   // Show the Window on the watch, with animated=true
