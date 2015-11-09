@@ -76,25 +76,24 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
 static void main_window_load(Window *window) {
 	
-	window_set_background_color(window, default_bg_color);
-	
-	load_analog(window);
-	//load_calendar(window);
-	load_digit(window);
 	load_bluetooth(window);
 	load_battery(window);
 	load_weather(window);
+	load_digit(window);
+	//load_calendar(window);
+	
+	load_analog(window);
 }
 
 static void main_window_unload(Window *window) {
-	//unload_calendar(window);
-	unload_analog(window);
-	unload_digit(window);
 	unload_bluetooth(window);
 	unload_battery(window);
 	unload_weather(window);
-	
+	//unload_calendar(window);
+	unload_analog(window);
+	unload_digit(window);
 }
+
 
 void tap_handler(AccelAxisType axis, int32_t direction) {
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "accel tap!");
@@ -134,21 +133,20 @@ static void init() {
     .unload = main_window_unload
   });
 
+
 	// Register with TickTimerService
 	
 	if (enable_second) {
 		tick_timer_service_subscribe(SECOND_UNIT, tick_handler);	
 	} else {
-		tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+		tick_timer_service_subscribe(MINUTE_UNIT|HOUR_UNIT|DAY_UNIT|MONTH_UNIT|YEAR_UNIT, tick_handler);
 	}
 
 	//accel_tap_service_subscribe(tap_handler);
 
-
-
   // Show the Window on the watch, with animated=true
-  window_stack_push(s_main_window, true);
-
+  window_stack_push(s_main_window, false);
+	
   connection_service_subscribe((ConnectionHandlers) {
     .pebble_app_connection_handler = bluetooth_handler
   });
@@ -170,7 +168,7 @@ static void init() {
 static void deinit() {
   // Destroy Window
   window_destroy(s_main_window);
-	
+		
 	deinit_weather();
 }
 

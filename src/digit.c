@@ -4,14 +4,14 @@
 
 TextLayer *s_digit_layer;
 
-char *b_digit;
-
 void update_digit_time(struct tm *tick_time) {
 	
+	static char b_digit[9];
+	
 	if (enable_second) {
-		strftime(b_digit, sizeof(char)*9, "%H:%M:%S", tick_time);	
+		strftime(b_digit, sizeof(b_digit), "%H:%M:%S", tick_time);	
 	} else {
-		strftime(b_digit, sizeof(char)*9, "%H:%M", tick_time);
+		strftime(b_digit, sizeof(b_digit), "%H:%M", tick_time);
 	}
 	
 	text_layer_set_text(s_digit_layer, b_digit);
@@ -26,7 +26,6 @@ void digit_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 void load_digit(Window *window) {
-	b_digit = calloc(9, sizeof(char));
 	
 	//GRect window_grect = layer_get_frame(window_get_root_layer(window));
 	GRect digit_grect = GRect(0, 24, 33, 32);
@@ -48,5 +47,4 @@ void load_digit(Window *window) {
 void unload_digit(Window * window) {
 	text_layer_destroy(s_digit_layer);
 	
-	free(b_digit);
 }
