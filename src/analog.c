@@ -40,6 +40,8 @@ typedef struct {
 	ANALOG_HAND analog_hand;
 	int32_t hand_length;
 	int32_t analog_radius;
+	int8_t last_val;
+	int32_t hand_angle;
 } analog_time_layer_data;
 
 typedef struct {
@@ -54,6 +56,7 @@ typedef struct {
 	GRect bounds;
 	ANALOG_DATE_TEXT analog_date_text;
 	int8_t last_val;
+	int32_t text_angle;
 	GRect text_grect;
 } analog_date_text_layer_data;
 
@@ -73,46 +76,57 @@ void draw_analog_time_layer(Layer *layer, GContext *ctx) {
 	int32_t analog_radius = data->analog_radius;
 	int32_t hand_length = data->hand_length;
 	
-	int32_t hand_angle;
+	int32_t *hand_angle = &data->hand_angle;
 	
 	switch (data->analog_hand) {
 		case HOUR:
-			hand_angle = (TRIG_MAX_ANGLE * (((analog_tick_time->tm_hour % 12) * 6) + (analog_tick_time->tm_min / 10))) / (12 * 6);
+			if (data->last_val != analog_tick_time->tm_hour) {
+				data->last_val = analog_tick_time->tm_hour;
+				data->hand_angle = (TRIG_MAX_ANGLE * (((analog_tick_time->tm_hour % 12) * 6) + (analog_tick_time->tm_min / 10))) / (12 * 6);
+			}
+		
 
 			graphics_context_set_stroke_color(ctx, default_color);
 
 			graphics_context_set_stroke_width(ctx, 3);
-			graphics_draw_line(ctx, center, gpoint_to_polar(center, hand_angle, hand_length));
+			graphics_draw_line(ctx, center, gpoint_to_polar(center, *hand_angle, hand_length));
 
 			graphics_context_set_stroke_width(ctx, 7);
-			graphics_draw_line(ctx, gpoint_to_polar(center, hand_angle, analog_radius*2/10), 
-												 gpoint_to_polar(center, hand_angle, hand_length));
+			graphics_draw_line(ctx, gpoint_to_polar(center, *hand_angle, analog_radius*2/10), 
+												 gpoint_to_polar(center, *hand_angle, hand_length));
 
 			graphics_context_set_stroke_width(ctx, 3);
 			graphics_context_set_stroke_color(ctx, default_bg_color);
-			graphics_draw_line(ctx, gpoint_to_polar(center, hand_angle, analog_radius*3/10), 
-												 gpoint_to_polar(center, hand_angle, hand_length*8/10));
+			graphics_draw_line(ctx, gpoint_to_polar(center, *hand_angle, analog_radius*3/10), 
+												 gpoint_to_polar(center, *hand_angle, hand_length*8/10));
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog hour");
 			break;
 		
 		case MINUTE:
-			hand_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_min / 60;
+			if (data->last_val != analog_tick_time->tm_min) {
+				data->last_val = analog_tick_time->tm_min;
+				data->hand_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_min / 60;
+			}
 
 			graphics_context_set_stroke_color(ctx, default_color);
 
 			graphics_context_set_stroke_width(ctx, 3);
-			graphics_draw_line(ctx, center, gpoint_to_polar(center, hand_angle, hand_length));
+			graphics_draw_line(ctx, center, gpoint_to_polar(center, *hand_angle, hand_length));
 			graphics_context_set_stroke_width(ctx, 5);
-			graphics_draw_line(ctx, gpoint_to_polar(center, hand_angle, analog_radius*2/10), 
-												 gpoint_to_polar(center, hand_angle, hand_length));
+			graphics_draw_line(ctx, gpoint_to_polar(center, *hand_angle, analog_radius*2/10), 
+												 gpoint_to_polar(center, *hand_angle, hand_length));
 
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog minute");
 			break;
 		
 		case SECOND:
-			hand_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_sec / 60;
+			if (data->last_val != analog_tick_time->tm_sec) {
+				data->last_val = analog_tick_time->tm_sec;
+				data->hand_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_sec / 60;
+			}
+
 			graphics_context_set_stroke_color(ctx, default_color);
-			graphics_draw_line(ctx, center, gpoint_to_polar(center, hand_angle, hand_length));
+			graphics_draw_line(ctx, center, gpoint_to_polar(center, *hand_angle, hand_length));
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog second");
 			break;
 	}
@@ -195,6 +209,7 @@ void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
 			if (data->last_val != analog_tick_time->tm_mon) {
 				data->last_val = analog_tick_time->tm_mon;
 				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mon+1)+TRIG_MAX_ANGLE/2)/12;
+				data->text_angle = box_angle;
 				data->text_grect = grect_centered_from_polar(bounds, GOvalScaleModeFitCircle, box_angle, GSize(18,18));
 				strftime(b_month, sizeof(char)*3, "%m", analog_tick_time);
 			}
@@ -213,17 +228,19 @@ void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
 		case DAY_TEXT:
 			if (data->last_val != analog_tick_time->tm_mday) {
 				data->last_val = analog_tick_time->tm_mday;
+				int32_t day_angle = TRIG_MAX_ANGLE/days_in_month(analog_tick_time);
 				
-				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mday)/days_in_month(analog_tick_time));
-				box_angle -= (TRIG_MAX_ANGLE/days_in_month(analog_tick_time)); // center day 1
+				box_angle = (analog_tick_time->tm_mday-1)*day_angle;
+				
+				data->text_angle = box_angle;
 
-				int32_t hour_angle = (TRIG_MAX_ANGLE * (((analog_tick_time->tm_hour % 12) * 6) + (analog_tick_time->tm_min / 10))) / (12 * 6);
-				int32_t min_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_min / 60;
+				int32_t hour_angle = ((analog_time_layer_data *)layer_get_data(s_analog_hour_hand_layer))->hand_angle;
+				int32_t min_angle = ((analog_time_layer_data *)layer_get_data(s_analog_min_hand_layer))->hand_angle;
+				
 				static int32_t half_12 = TRIG_MAX_ANGLE/24;
 
 				while (angle_check(box_angle, hour_angle, half_12) ||
-							 angle_check(box_angle, min_angle, half_12)
-							) {
+							 angle_check(box_angle, min_angle, half_12)) {
 					if (analog_tick_time->tm_mday < 7) {
 						box_angle += half_12;
 					} else {
@@ -251,8 +268,9 @@ void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
 		
 			if (data->last_val != analog_tick_time->tm_wday) {
 				data->last_val = analog_tick_time->tm_wday;
-				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_wday+1)/7);
-				data->text_grect = grect_centered_from_polar(bounds, GOvalScaleModeFitCircle, box_angle-TRIG_MAX_ANGLE/2/7, GSize(20,20));
+				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_wday+1)/7)-TRIG_MAX_ANGLE/2/7;
+				data->text_angle = box_angle;
+				data->text_grect = grect_centered_from_polar(bounds, GOvalScaleModeFitCircle, box_angle, GSize(20,20));
 			}
 		
 			graphics_context_set_text_color(ctx, default_color);
@@ -334,7 +352,15 @@ void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 		
 		layer_mark_dirty(s_analog_min_hand_layer);
 		layer_mark_dirty(s_analog_hour_hand_layer);
-		layer_mark_dirty(s_analog_day_text_cal_layer);	
+		
+		analog_date_text_layer_data * date_text_layer_data = layer_get_data(s_analog_day_text_cal_layer);
+		
+		
+		if (angle_check(date_text_layer_data->text_angle, ((analog_time_layer_data *)layer_get_data(s_analog_min_hand_layer))->hand_angle, TRIG_MAX_ANGLE/24) || 
+				angle_check(date_text_layer_data->text_angle, ((analog_time_layer_data *)layer_get_data(s_analog_hour_hand_layer))->hand_angle, TRIG_MAX_ANGLE/24)) {
+			date_text_layer_data->last_val = 0;
+			layer_mark_dirty(s_analog_day_text_cal_layer);
+		}
 		
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog minute");
 	}
