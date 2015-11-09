@@ -1,4 +1,4 @@
-var myAPIKey = 'bd82977b86bf27fb59a04b61b657fb6f';
+var myAPIKey = '6d6966de2aa0baf93f6d06d7ef536798'; // I know it's a bad practice to put key here, but I haven't finish config page
 
 var xhrRequest = function (url, type, callback) {
   var xhr = new XMLHttpRequest();
@@ -117,7 +117,6 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function(e) {
 		console.log("AppMessage received!");
-		console.log(e.payload);
 		if(e.payload.KEY_WEATHER) {
 			console.log("js got weather call");
 			getWeather();

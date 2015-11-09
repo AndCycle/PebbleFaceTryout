@@ -1,6 +1,14 @@
 #include <pebble.h>
 #include "extra.h"
 
+int8_t days_in_month(struct tm *t) {
+	struct tm c_tm = *t;
+	c_tm.tm_mon += 1;
+	c_tm.tm_mday = 0;
+	mktime(&c_tm);
+	return c_tm.tm_mday;
+}
+
 bool angle_check(int32_t a, int32_t b, int32_t range) {
 
 	if ((a-range) <= b && b <= (a+range)) {

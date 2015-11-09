@@ -140,7 +140,7 @@ static void init() {
 		tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 	}
 
-	accel_tap_service_subscribe(tap_handler);
+	//accel_tap_service_subscribe(tap_handler);
 
 
 

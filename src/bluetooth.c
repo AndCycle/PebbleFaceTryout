@@ -21,16 +21,16 @@ const GPathInfo BLUETOOTH_PATH_INFO = {
 typedef struct {
 	GRect bounds;
 	GPath *bluetooth_path_ptr;
-	bool bluetooth_connected;
 } bluetooth_layer_data;
 
+bool bluetooth_connected;
+
 void bluetooth_handler(bool connected) {
-	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(s_bluetooth_layer);
-	if (temp_bluetooth_layer_data->bluetooth_connected == connected) {
+	if (bluetooth_connected == connected) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "connect state doesnt change, skip");
 		return;
 	}
-	temp_bluetooth_layer_data->bluetooth_connected = connected;
+	bluetooth_connected = connected;
 	layer_mark_dirty(s_bluetooth_layer);
   // Show current connection state
 	if (connected) {
@@ -41,13 +41,12 @@ void bluetooth_handler(bool connected) {
 }
 
 void update_bluetooth_proc(Layer *layer, GContext *ctx) {
-	bluetooth_layer_data *temp_bluetooth_layer_data = layer_get_data(layer);
-	GRect bounds = temp_bluetooth_layer_data->bounds;
-	GPath *bluetooth_path_ptr = temp_bluetooth_layer_data->bluetooth_path_ptr;
-	bool bluetooth_connected = temp_bluetooth_layer_data->bluetooth_connected;
+	bluetooth_layer_data *data = layer_get_data(layer);
+	GRect *bounds = &data->bounds;
+	GPath *bluetooth_path_ptr = data->bluetooth_path_ptr;
 	
 	graphics_context_set_fill_color(ctx, GColorBlue);
-	graphics_fill_rect(ctx, bounds, 4, GCornersAll);
+	graphics_fill_rect(ctx, *bounds, 4, GCornersAll);
 	
   // Stroke the path:
 	//graphics_context_set_antialiased(ctx, false);

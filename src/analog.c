@@ -15,120 +15,153 @@ Layer *s_analog_day_text_cal_layer;
 Layer *s_analog_month_cal_layer;
 Layer *s_analog_month_text_cal_layer;
 
+struct tm *analog_tick_time;
 
 typedef enum {
 	HOUR, 
 	MINUTE, 
 	SECOND,
-	MONTH,
-	MONTH_TEXT,
-	DAY,
-	DAY_TEXT,
-	WDAY,
-	WDAY_TEXT
-} hand;
+} ANALOG_HAND;
 
+typedef enum {
+	MONTH,
+	DAY,
+	WDAY
+} ANALOG_DATE_CIRCLE;
+
+typedef enum {
+	MONTH_TEXT,
+	DAY_TEXT,
+	WDAY_TEXT
+} ANALOG_DATE_TEXT;
+
+typedef struct {
+	GPoint center;
+	ANALOG_HAND analog_hand;
+	int32_t hand_length;
+	int32_t analog_radius;
+} analog_time_layer_data;
 
 typedef struct {
 	GRect bounds;
-	GPoint center;
-  hand my_hand;
-	int32_t hand_length;
-	int32_t analog_radius;
-	struct tm *t;
-} hand_layer_data;
+	ANALOG_DATE_CIRCLE analog_date_circle;
+	int16_t inset_thickness;
+	int8_t last_val;
+	int32_t circle_angle;
+} analog_date_circle_layer_data;
 
-void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
+typedef struct {
+	GRect bounds;
+	ANALOG_DATE_TEXT analog_date_text;
+	int8_t last_val;
+	GRect text_grect;
+} analog_date_text_layer_data;
+
+
+typedef struct {
+	GPoint center;
+	GPoint min_gpoint_a[60];
+	GPoint min_gpoint_b[60];
+	GRect text_grect[12];
+} analog_tick_layer_data;
+
+void draw_analog_time_layer(Layer *layer, GContext *ctx) {
 	
-	hand_layer_data *data = layer_get_data(layer);
-	GRect bounds = data->bounds;
+	analog_time_layer_data *data = layer_get_data(layer);
+	
 	GPoint center = data->center;
 	int32_t analog_radius = data->analog_radius;
 	int32_t hand_length = data->hand_length;
 	
-	static const int32_t one_degree_angle = TRIG_MAX_ANGLE/360;
+	int32_t hand_angle;
 	
-  struct tm *t = data->t;
+	switch (data->analog_hand) {
+		case HOUR:
+			hand_angle = (TRIG_MAX_ANGLE * (((analog_tick_time->tm_hour % 12) * 6) + (analog_tick_time->tm_min / 10))) / (12 * 6);
 
-	if (data->my_hand == MONTH || data->my_hand == MONTH_TEXT) {
-		static char b_month[3];
+			graphics_context_set_stroke_color(ctx, default_color);
 
+			graphics_context_set_stroke_width(ctx, 3);
+			graphics_draw_line(ctx, center, gpoint_to_polar(center, hand_angle, hand_length));
+
+			graphics_context_set_stroke_width(ctx, 7);
+			graphics_draw_line(ctx, gpoint_to_polar(center, hand_angle, analog_radius*2/10), 
+												 gpoint_to_polar(center, hand_angle, hand_length));
+
+			graphics_context_set_stroke_width(ctx, 3);
+			graphics_context_set_stroke_color(ctx, default_bg_color);
+			graphics_draw_line(ctx, gpoint_to_polar(center, hand_angle, analog_radius*3/10), 
+												 gpoint_to_polar(center, hand_angle, hand_length*8/10));
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog hour");
+			break;
 		
+		case MINUTE:
+			hand_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_min / 60;
+
+			graphics_context_set_stroke_color(ctx, default_color);
+
+			graphics_context_set_stroke_width(ctx, 3);
+			graphics_draw_line(ctx, center, gpoint_to_polar(center, hand_angle, hand_length));
+			graphics_context_set_stroke_width(ctx, 5);
+			graphics_draw_line(ctx, gpoint_to_polar(center, hand_angle, analog_radius*2/10), 
+												 gpoint_to_polar(center, hand_angle, hand_length));
+
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog minute");
+			break;
 		
-		if (data->my_hand == MONTH) {
-			struct tm c_tm = *t;
-			c_tm.tm_mon += 1;
-			c_tm.tm_mday = 0;
-			mktime(&c_tm);
-			int32_t month_angle = (TRIG_MAX_ANGLE*(t->tm_mon+1)+(TRIG_MAX_ANGLE*t->tm_mday/c_tm.tm_mday))/12;
-			graphics_context_set_fill_color(ctx, GColorLightGray);
-			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, hand_length, TRIG_MAX_ANGLE/12, month_angle);	
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog month");
-		} else {
-			int32_t month_angle = (TRIG_MAX_ANGLE*(t->tm_mon+1)+TRIG_MAX_ANGLE/2)/12;
-			graphics_context_set_text_color(ctx, default_color);
-			GRect temp_grect = grect_centered_from_polar(grect_inset(bounds, GEdgeInsets(hand_length/2)), GOvalScaleModeFitCircle, month_angle, GSize(18,18));
-			graphics_context_set_fill_color(ctx, default_bg_color);
-			graphics_context_set_stroke_color(ctx, GColorDarkGray);
-			graphics_fill_rect(ctx, temp_grect, 1, GCornersAll);
-			graphics_draw_round_rect(ctx, temp_grect, 1);
-			strftime(b_month, sizeof(char)*3, "%m", t);
-			graphics_draw_text(ctx, b_month, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), temp_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog month text");
-		}
-		
+		case SECOND:
+			hand_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_sec / 60;
+			graphics_context_set_stroke_color(ctx, default_color);
+			graphics_draw_line(ctx, center, gpoint_to_polar(center, hand_angle, hand_length));
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog second");
+			break;
 	}
+}
+
+void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 	
-	if (data->my_hand == DAY || data->my_hand == DAY_TEXT) {
-		static char b_day[3];
-		struct tm c_tm = *t;
-		c_tm.tm_mon += 1;
-		c_tm.tm_mday = 0;
-		mktime(&c_tm);
-		int32_t day_angle = (TRIG_MAX_ANGLE*(t->tm_mday)/c_tm.tm_mday);
+	analog_date_circle_layer_data *data = layer_get_data(layer);
+
+	GRect bounds = data->bounds;
+	int16_t *inset_thickness = &data->inset_thickness;
+	int32_t *circle_angle = &data->circle_angle;
+	
+	switch (data->analog_date_circle) {
+		case MONTH:
 		
-		if (data->my_hand == DAY) {
+			if (data->last_val != analog_tick_time->tm_mon) {
+				data->last_val = analog_tick_time->tm_mon;
+				data->circle_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mon+1)+(TRIG_MAX_ANGLE*analog_tick_time->tm_mday/days_in_month(analog_tick_time)))/12;	
+			}
+				
 			graphics_context_set_fill_color(ctx, GColorLightGray);
-			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, hand_length, 0, day_angle);
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog day");
-		} else {
-			
-			day_angle -= (TRIG_MAX_ANGLE/c_tm.tm_mday); // center day 1
-			
-			int32_t hour_angle = (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6);
-			int32_t min_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
-			int32_t half_12 = TRIG_MAX_ANGLE/24;
-			
-			while (angle_check(day_angle, hour_angle, half_12) ||
-						 angle_check(day_angle, min_angle, half_12)
-						) {
-				if (t->tm_mday < 7) {
-					day_angle += half_12;
-				} else {
-					day_angle -= half_12;
-				}
+			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, TRIG_MAX_ANGLE/12, *circle_angle);	
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog month");
+
+			break;
+		
+		case DAY:
+				
+			if (data->last_val != analog_tick_time->tm_mday) {
+				data->last_val = analog_tick_time->tm_mday;
+				data->circle_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mday)/days_in_month(analog_tick_time));
 			}
 			
-			graphics_context_set_text_color(ctx, default_color);
-			GRect temp_grect = grect_centered_from_polar(grect_inset(bounds, GEdgeInsets(hand_length/2)), GOvalScaleModeFitCircle, day_angle, GSize(24,24));
-			graphics_context_set_fill_color(ctx, default_bg_color);
-			graphics_context_set_stroke_color(ctx, GColorDarkGray);
-			graphics_fill_rect(ctx, grect_inset(temp_grect, GEdgeInsets(2)), 1, GCornersAll);
-			graphics_draw_round_rect(ctx, grect_inset(temp_grect, GEdgeInsets(2)), 1);
-			strftime(b_day, sizeof(char)*3, "%d", t);
-			graphics_draw_text(ctx, b_day, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), temp_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog day text");
-		}
-	}
-	
-	if (data->my_hand == WDAY || data->my_hand == WDAY_TEXT) {
-		static const char *b_wday[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
-		
-		int32_t wday_angle = (TRIG_MAX_ANGLE*(t->tm_wday+1)/7);
-		
-		if (data->my_hand == WDAY) {
 			graphics_context_set_fill_color(ctx, GColorLightGray);
-			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, hand_length, 0, wday_angle);
+			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, 0, *circle_angle);
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog day");
+
+			break;
+		
+		case WDAY:
+						
+			if (data->last_val != analog_tick_time->tm_wday) {
+				data->last_val = analog_tick_time->tm_wday;
+				data->circle_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_wday+1)/7);
+			}
+		
+			graphics_context_set_fill_color(ctx, GColorLightGray);
+			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, 0, *circle_angle);
 
 			/*
 			graphics_context_set_stroke_color(ctx, default_color);
@@ -138,86 +171,127 @@ void draw_analog_hand_layer(Layer *layer, GContext *ctx) {
 
 			}
 			*/
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog wday");
-		} else {
-			graphics_context_set_text_color(ctx, default_color);
-			GRect temp_grect = grect_centered_from_polar(grect_inset(bounds, GEdgeInsets(hand_length/2)), GOvalScaleModeFitCircle, wday_angle-TRIG_MAX_ANGLE/2/7, GSize(20,20));
-			graphics_context_set_fill_color(ctx, default_bg_color);
-			graphics_context_set_stroke_color(ctx, GColorDarkGray);
-			graphics_fill_rect(ctx, temp_grect, 1, GCornersAll);
-			graphics_draw_round_rect(ctx, temp_grect, 1);
-			graphics_draw_text(ctx, b_wday[t->tm_wday], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), temp_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog wday text");
-		}
-	}
-	
-	if (data->my_hand == HOUR) {
-		int32_t hour_angle = (TRIG_MAX_ANGLE * (((t->tm_hour % 12) * 6) + (t->tm_min / 10))) / (12 * 6);
-
-		graphics_context_set_stroke_color(ctx, default_color);
-
-		graphics_context_set_stroke_width(ctx, 3);
-		graphics_draw_line(ctx, center, gpoint_to_polar(center, hour_angle, hand_length));
-
-		graphics_context_set_stroke_width(ctx, 7);
-		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*2/10), 
-											 gpoint_to_polar(center, hour_angle, hand_length));
-
-		graphics_context_set_stroke_width(ctx, 3);
-		graphics_context_set_stroke_color(ctx, default_bg_color);
-		graphics_draw_line(ctx, gpoint_to_polar(center, hour_angle, analog_radius*3/10), 
-											 gpoint_to_polar(center, hour_angle, hand_length*8/10));
-		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog hour");
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog wday");		
+			break;
 		
-	} else if (data->my_hand == MINUTE) {
-		
-		int32_t min_angle = TRIG_MAX_ANGLE * t->tm_min / 60;
-
-		graphics_context_set_stroke_color(ctx, default_color);
-
-		graphics_context_set_stroke_width(ctx, 3);
-		graphics_draw_line(ctx, center, gpoint_to_polar(center, min_angle, hand_length));
-		graphics_context_set_stroke_width(ctx, 5);
-		graphics_draw_line(ctx, gpoint_to_polar(center, min_angle, analog_radius*2/10), 
-											 gpoint_to_polar(center, min_angle, hand_length));
-		
-		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog minute");
-	} else if (data->my_hand == SECOND) {
-		
-		int32_t second_angle = TRIG_MAX_ANGLE * t->tm_sec / 60;
-		graphics_context_set_stroke_color(ctx, default_color);
-		graphics_draw_line(ctx, center, gpoint_to_polar(center, second_angle, hand_length));
-		
-		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog second");
 	}
 }
-	
-void draw_tick_layer(Layer *layer, GContext *ctx) {
-	GRect bounds = layer_get_bounds(layer);
-	GOvalScaleMode default_govalscalemode = GOvalScaleModeFitCircle;
-	GPoint center = ret_carry_center(bounds, default_govalscalemode);
-	
-	int32_t radius = bounds.size.w/2;
 
+void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
+	
+	analog_date_text_layer_data *data = layer_get_data(layer);
+	GRect bounds = data->bounds;
+	
+	static char b_month[3];
+	static char b_day[3];
+	static const char *b_wday[] = {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
+	
+	int32_t box_angle;
+	GRect *text_grect = &data->text_grect;
+		
+	switch (data->analog_date_text) {
+		case MONTH_TEXT:
+		
+			if (data->last_val != analog_tick_time->tm_mon) {
+				data->last_val = analog_tick_time->tm_mon;
+				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mon+1)+TRIG_MAX_ANGLE/2)/12;
+				data->text_grect = grect_centered_from_polar(bounds, GOvalScaleModeFitCircle, box_angle, GSize(18,18));
+				strftime(b_month, sizeof(char)*3, "%m", analog_tick_time);
+			}
+			
+			graphics_context_set_text_color(ctx, default_color);		
+			graphics_context_set_fill_color(ctx, default_bg_color);
+			graphics_context_set_stroke_color(ctx, GColorDarkGray);
+		
+			graphics_fill_rect(ctx, *text_grect, 1, GCornersAll);
+			graphics_draw_round_rect(ctx, *text_grect, 1);
+		
+			graphics_draw_text(ctx, b_month, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), *text_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog month text");
+			break;
+		
+		case DAY_TEXT:
+			if (data->last_val != analog_tick_time->tm_mday) {
+				data->last_val = analog_tick_time->tm_mday;
+				
+				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mday)/days_in_month(analog_tick_time));
+				box_angle -= (TRIG_MAX_ANGLE/days_in_month(analog_tick_time)); // center day 1
+
+				int32_t hour_angle = (TRIG_MAX_ANGLE * (((analog_tick_time->tm_hour % 12) * 6) + (analog_tick_time->tm_min / 10))) / (12 * 6);
+				int32_t min_angle = TRIG_MAX_ANGLE * analog_tick_time->tm_min / 60;
+				static int32_t half_12 = TRIG_MAX_ANGLE/24;
+
+				while (angle_check(box_angle, hour_angle, half_12) ||
+							 angle_check(box_angle, min_angle, half_12)
+							) {
+					if (analog_tick_time->tm_mday < 7) {
+						box_angle += half_12;
+					} else {
+						box_angle -= half_12;
+					}
+				}
+				
+				data->text_grect = grect_centered_from_polar(bounds, GOvalScaleModeFitCircle, box_angle, GSize(24,24));
+				strftime(b_day, sizeof(char)*3, "%d", analog_tick_time);
+			}
+		
+			graphics_context_set_text_color(ctx, default_color);
+			
+			graphics_context_set_fill_color(ctx, default_bg_color);
+			graphics_context_set_stroke_color(ctx, GColorDarkGray);
+		
+			graphics_fill_rect(ctx, grect_inset(*text_grect, GEdgeInsets(2)), 1, GCornersAll);
+			graphics_draw_round_rect(ctx, grect_inset(*text_grect, GEdgeInsets(2)), 1);
+			
+			graphics_draw_text(ctx, b_day, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), *text_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog day text");
+			break;
+		
+		case WDAY_TEXT:
+		
+			if (data->last_val != analog_tick_time->tm_wday) {
+				data->last_val = analog_tick_time->tm_wday;
+				box_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_wday+1)/7);
+				data->text_grect = grect_centered_from_polar(bounds, GOvalScaleModeFitCircle, box_angle-TRIG_MAX_ANGLE/2/7, GSize(20,20));
+			}
+		
+			graphics_context_set_text_color(ctx, default_color);
+			graphics_context_set_fill_color(ctx, default_bg_color);
+			graphics_fill_rect(ctx, *text_grect, 1, GCornersAll);
+			graphics_context_set_stroke_color(ctx, GColorDarkGray);
+			graphics_draw_round_rect(ctx, *text_grect, 1);
+			graphics_draw_text(ctx, b_wday[analog_tick_time->tm_wday], fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD), *text_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog wday text");
+			break;
+
+	}
+	
+}
+
+void draw_tick_layer(Layer *layer, GContext *ctx) {
+	
+	analog_tick_layer_data *data = layer_get_data(layer);
+
+	GPoint center = data->center;
+	
 	graphics_context_set_stroke_color(ctx, default_color);
 	
 	// fill min tick
 	
-	int32_t tick_length = radius*95/100;
-	
 	graphics_context_set_stroke_width(ctx, 1);
 
-	for(int32_t angle=0; angle<TRIG_MAX_ANGLE; angle+=(TRIG_MAX_ANGLE/60)) {
-		graphics_draw_line(ctx, gpoint_from_polar(bounds, default_govalscalemode, angle), gpoint_to_polar(center, angle, tick_length));
+	for(int32_t min=0; min<60; min++) {
+		graphics_draw_line(ctx, data->min_gpoint_a[min], data->min_gpoint_b[min]);
 	}
 	
 	// fill hour tick
 	
 	graphics_context_set_stroke_width(ctx, 3);
 
-	for(int32_t angle=0; angle<TRIG_MAX_ANGLE; angle+=(TRIG_MAX_ANGLE/12)) {
-		graphics_draw_line(ctx, gpoint_from_polar(bounds, default_govalscalemode, angle), gpoint_to_polar(center, angle, tick_length));
+	for(int32_t hour=0; hour<12; hour++) {
+		graphics_draw_line(ctx, data->min_gpoint_a[hour*5], data->min_gpoint_b[hour*5]);
 	}
+	
 
 	// draw center circle
 	
@@ -231,30 +305,24 @@ void draw_tick_layer(Layer *layer, GContext *ctx) {
 	// draw hour number
 	const char *s_no12buffer[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 	
-	GRect no12_grect = grect_inset(bounds, GEdgeInsets(bounds.size.w/10));
 	graphics_context_set_text_color(ctx, default_color);
 	
-	GRect temp_grect;
 	//APP_LOG(APP_LOG_LEVEL_DEBUG, "b x %d y %d w %d h %d", s_no12_rect.origin.x, s_no12_rect.origin.y, s_no12_rect.size.w, s_no12_rect.size.h);
-	for(int i=0; i<12; i+=1) {
-		temp_grect = grect_centered_from_polar(no12_grect, GOvalScaleModeFitCircle, (i+1)*TRIG_MAX_ANGLE/12, GSize(24,24));
-		temp_grect.origin.x += 0;
-		temp_grect.origin.y += -5;
-		graphics_draw_text(ctx, s_no12buffer[i], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), temp_grect, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+	for(int i=0; i<12; i++) {
+		graphics_draw_text(ctx, s_no12buffer[i], fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), data->text_grect[i], GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 	}
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog tick");
 }
 
 void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-	hand_layer_data *temp_hand_layer_data;
+	
+	analog_tick_time = tick_time;
 
 	if (enable_second && units_changed & SECOND_UNIT) {
 		if (layer_get_hidden(s_analog_sec_hand_layer)) {
 			layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
 		}
 		
-		temp_hand_layer_data = layer_get_data(s_analog_sec_hand_layer);
-		temp_hand_layer_data->t = tick_time;
 		layer_mark_dirty(s_analog_sec_hand_layer);
 		//APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog second");
 	}
@@ -264,52 +332,22 @@ void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 			layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
 		}
 		
-		
-		temp_hand_layer_data = layer_get_data(s_analog_min_hand_layer);
-		temp_hand_layer_data->t = tick_time;
-		temp_hand_layer_data = layer_get_data(s_analog_hour_hand_layer);
-		temp_hand_layer_data->t = tick_time;
 		layer_mark_dirty(s_analog_min_hand_layer);
 		layer_mark_dirty(s_analog_hour_hand_layer);
 		layer_mark_dirty(s_analog_day_text_cal_layer);	
-
-		/*
-		struct tm c_tm = *tick_time;
-		c_tm.tm_mon += 1;
-		c_tm.tm_mday = 0;
-		mktime(&c_tm);
-		int32_t day_angle = (TRIG_MAX_ANGLE*(tick_time->tm_mday+1)/c_tm.tm_mday);
-		int32_t hour_angle = (TRIG_MAX_ANGLE * (((tick_time->tm_hour % 12) * 6) + (tick_time->tm_min / 10))) / (12 * 6);
-		int32_t min_angle = TRIG_MAX_ANGLE * tick_time->tm_min / 60;
-		int32_t half_12 = TRIG_MAX_ANGLE/24;
-		if (angle_check(day_angle, hour_angle, half_12*3) || angle_check(day_angle, min_angle, half_12*3)) {
-			layer_mark_dirty(s_analog_day_text_cal_layer);	
-		}
-		*/
 		
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog minute");
 	}
 	
 	if (units_changed & DAY_UNIT) {
-		temp_hand_layer_data = layer_get_data(s_analog_wday_cal_layer);
-		temp_hand_layer_data->t = tick_time;
-		temp_hand_layer_data = layer_get_data(s_analog_wday_text_cal_layer);
-		temp_hand_layer_data->t = tick_time;
-		temp_hand_layer_data = layer_get_data(s_analog_day_cal_layer);
-		temp_hand_layer_data->t = tick_time;
-		temp_hand_layer_data = layer_get_data(s_analog_day_text_cal_layer);
-		temp_hand_layer_data->t = tick_time;
-		temp_hand_layer_data = layer_get_data(s_analog_month_cal_layer);
-		temp_hand_layer_data->t = tick_time;
-		temp_hand_layer_data = layer_get_data(s_analog_month_text_cal_layer);
-		temp_hand_layer_data->t = tick_time;
-
-		layer_mark_dirty(s_analog_wday_cal_layer);
-		layer_mark_dirty(s_analog_wday_text_cal_layer);
-		layer_mark_dirty(s_analog_day_cal_layer);
-		layer_mark_dirty(s_analog_day_text_cal_layer);
+		
 		layer_mark_dirty(s_analog_month_cal_layer);
+		layer_mark_dirty(s_analog_day_cal_layer);
+		layer_mark_dirty(s_analog_wday_cal_layer);
+		
 		layer_mark_dirty(s_analog_month_text_cal_layer);
+		layer_mark_dirty(s_analog_day_text_cal_layer);
+		layer_mark_dirty(s_analog_wday_text_cal_layer);
 		
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Update analog day");
 	}
@@ -320,153 +358,139 @@ void refresh_analog_enable_second() {
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "change analog second status");
 }
 
+Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_date_circle, int16_t inset_thickness) {
+	
+	Layer *temp_layer;
+	analog_date_circle_layer_data *temp_analog_date_circle_layer_data;
+		
+	//year
+	temp_layer = layer_create_with_data(frame, sizeof(analog_date_circle_layer_data));
+		
+	temp_analog_date_circle_layer_data = layer_get_data(temp_layer);
+	temp_analog_date_circle_layer_data->analog_date_circle = analog_date_circle;
+	temp_analog_date_circle_layer_data->inset_thickness = inset_thickness;
+	temp_analog_date_circle_layer_data->bounds = layer_get_bounds(temp_layer);
+	
+	layer_set_update_proc(temp_layer, draw_analog_date_circle_layer);
+	
+	return temp_layer;
+}
+
+Layer * analog_date_text_layer_create(GRect frame, ANALOG_DATE_TEXT analog_date_text) {
+	
+	Layer *temp_layer;
+	analog_date_text_layer_data *temp_analog_date_text_layer_data;
+		
+	temp_layer = layer_create_with_data(frame, sizeof(analog_date_text_layer_data));
+	temp_analog_date_text_layer_data = layer_get_data(temp_layer);
+	temp_analog_date_text_layer_data->bounds = grect_inset(layer_get_bounds(temp_layer), GEdgeInsets(10));
+	temp_analog_date_text_layer_data->analog_date_text = analog_date_text;
+	
+	layer_set_update_proc(temp_layer, draw_analog_date_text_layer);
+	
+	return temp_layer;
+}
+
+
+Layer * analog_time_layer_create(GRect frame, ANALOG_HAND analog_hand, int32_t analog_radius, int32_t hand_length) {
+	
+	Layer *temp_layer;
+	analog_time_layer_data *temp_time_layer_data;
+			
+	temp_layer = layer_create_with_data(frame, sizeof(analog_time_layer_data));
+	temp_time_layer_data = layer_get_data(temp_layer);
+	temp_time_layer_data->analog_hand = analog_hand;
+	temp_time_layer_data->center = ret_carry_center(layer_get_bounds(temp_layer), GOvalScaleModeFitCircle);
+	temp_time_layer_data->analog_radius = analog_radius;
+	temp_time_layer_data->hand_length = hand_length;
+	
+	layer_set_update_proc(temp_layer, draw_analog_time_layer);
+	
+	return temp_layer;
+}
+
+
+Layer * tick_layer_create(GRect frame) {
+	Layer * temp_layer;
+	analog_tick_layer_data * temp_tick_layer_data;
+	
+	temp_layer = layer_create_with_data(frame, sizeof(analog_tick_layer_data));
+	temp_tick_layer_data = layer_get_data(temp_layer);
+	
+	GOvalScaleMode default_govalscalemode = GOvalScaleModeFitCircle;
+	
+	GRect bounds = layer_get_bounds(temp_layer);
+	int32_t tick_length = (bounds.size.w/2)*95/100;
+	
+	temp_tick_layer_data->center = ret_carry_center(bounds, default_govalscalemode);
+	
+	
+	for(int32_t min=0, angle=0; min<60; min+=1, angle+=(TRIG_MAX_ANGLE/60)) {
+		temp_tick_layer_data->min_gpoint_a[min] = gpoint_from_polar(bounds, default_govalscalemode, angle);
+		temp_tick_layer_data->min_gpoint_b[min] = gpoint_to_polar(temp_tick_layer_data->center, angle, tick_length);
+	}
+		
+	GRect no12_grect = grect_inset(bounds, GEdgeInsets(bounds.size.w/10));
+	
+	GRect temp_grect;
+	for(int i=0; i<12; i+=1) {
+		temp_grect = grect_centered_from_polar(no12_grect, GOvalScaleModeFitCircle, (i+1)*TRIG_MAX_ANGLE/12, GSize(24,24));
+		temp_grect.origin.x += 0;
+		temp_grect.origin.y += -5;
+		temp_tick_layer_data->text_grect[i] = temp_grect;
+	}
+	
+	layer_set_update_proc(temp_layer, draw_tick_layer);
+	
+	return temp_layer;
+}
 
 void load_analog(Window *window) {
 	
+	
+	
 	GRect analog_grect = squre_grect(layer_get_frame(window_get_root_layer(window)));
-
+	analog_grect.origin.y = 24;
 	int32_t analog_radius = analog_grect.size.w/2;
 	
-	GPoint center = ret_carry_center(analog_grect, GOvalScaleModeFitCircle);
-	
-	analog_grect.origin.y = 24;
-	
-	Layer *temp_layer;
-	hand_layer_data *temp_hand_layer_data;
 	time_t now = time(NULL);
-  struct tm *t = localtime(&now);
-	
-	// y:m:wday
-	
-	s_analog_month_cal_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_month_cal_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
-	temp_hand_layer_data->my_hand = MONTH;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*9/10/3;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
-	
-	s_analog_day_cal_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_day_cal_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = grect_inset(layer_get_bounds(temp_layer), GEdgeInsets(analog_radius/3));
-	temp_hand_layer_data->my_hand = DAY;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*9/10/3;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
-	
-	s_analog_wday_cal_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_wday_cal_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = grect_inset(layer_get_bounds(temp_layer), GEdgeInsets(analog_radius*2/3));
-	temp_hand_layer_data->my_hand = WDAY;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*9/10/3;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
+  analog_tick_time = localtime(&now);
 
+	
+	// m:d:wday
+	
+	s_analog_month_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*0/3)), MONTH,	analog_radius*9/10/3);
+	s_analog_day_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius/3)), DAY, analog_radius*9/10/3);
+	s_analog_wday_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*2/3)), WDAY,	analog_radius*9/10/3);
+	
+	layer_add_child(window_get_root_layer(window), s_analog_month_cal_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_day_cal_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_wday_cal_layer);
+	
 	// ymw day text
-	s_analog_month_text_cal_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_month_text_cal_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
-	temp_hand_layer_data->my_hand = MONTH_TEXT;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*9/10/3;
-	temp_hand_layer_data->t = t;
+	s_analog_month_text_cal_layer = analog_date_text_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*0/3)), MONTH_TEXT);
+	s_analog_day_text_cal_layer = analog_date_text_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*1/3)), DAY_TEXT);
+	s_analog_wday_text_cal_layer = analog_date_text_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*2/3)), WDAY_TEXT);
 	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_month_text_cal_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_day_text_cal_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_wday_text_cal_layer);
 	
-	s_analog_day_text_cal_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_day_text_cal_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = grect_inset(layer_get_bounds(temp_layer), GEdgeInsets(analog_radius/3));
-	temp_hand_layer_data->my_hand = DAY_TEXT;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*9/10/3;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
-	
-	s_analog_wday_text_cal_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_wday_text_cal_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = grect_inset(layer_get_bounds(temp_layer), GEdgeInsets(analog_radius*2/3));
-	temp_hand_layer_data->my_hand = WDAY_TEXT;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*9/10/3;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
-
 	// h:m:s
-	
-	s_analog_hour_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_hour_hand_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
-	temp_hand_layer_data->my_hand = HOUR;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*6/10;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
 
-	s_analog_min_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_min_hand_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
-	temp_hand_layer_data->my_hand = MINUTE;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius*8/10;
-	temp_hand_layer_data->t = t;
+	s_analog_hour_hand_layer = analog_time_layer_create(analog_grect, HOUR, analog_radius, analog_radius*6/10);
+	s_analog_min_hand_layer = analog_time_layer_create(analog_grect, MINUTE, analog_radius, analog_radius*8/10);
+	s_analog_sec_hand_layer = analog_time_layer_create(analog_grect, SECOND, analog_radius, analog_radius);
 	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);
-	
-	
-	s_analog_sec_hand_layer = layer_create_with_data(analog_grect, sizeof(hand_layer_data));
-	temp_layer = s_analog_sec_hand_layer;
-	temp_hand_layer_data = layer_get_data(temp_layer);
-	temp_hand_layer_data->bounds = layer_get_bounds(temp_layer);
-	temp_hand_layer_data->my_hand = SECOND;
-	temp_hand_layer_data->center = center;
-	temp_hand_layer_data->analog_radius = analog_radius;
-	temp_hand_layer_data->hand_length = analog_radius;
-	temp_hand_layer_data->t = t;
-	
-	layer_set_update_proc(temp_layer, draw_analog_hand_layer);
-	layer_add_child(window_get_root_layer(window), temp_layer);	
-	
-	layer_set_hidden(s_analog_sec_hand_layer, !enable_second);
+	layer_add_child(window_get_root_layer(window), s_analog_hour_hand_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_min_hand_layer);
+	layer_add_child(window_get_root_layer(window), s_analog_sec_hand_layer);
 	
 	refresh_analog_enable_second();
 		
 	// tick
 	
-	s_analog_tick_layer = layer_create(analog_grect);
-	layer_set_update_proc(s_analog_tick_layer, draw_tick_layer);
+	s_analog_tick_layer = tick_layer_create(analog_grect);
 	layer_add_child(window_get_root_layer(window), s_analog_tick_layer);
 	
 }
@@ -476,14 +500,15 @@ void unload_analog(Window *window) {
 	layer_destroy(s_analog_hour_hand_layer);
 	layer_destroy(s_analog_min_hand_layer);
 	layer_destroy(s_analog_sec_hand_layer);
-	layer_destroy(s_analog_tick_layer);
 	
-	layer_destroy(s_analog_wday_cal_layer);
-	layer_destroy(s_analog_wday_text_cal_layer);
-	layer_destroy(s_analog_day_cal_layer);
-	layer_destroy(s_analog_day_text_cal_layer);
 	layer_destroy(s_analog_month_cal_layer);
+	layer_destroy(s_analog_day_cal_layer);
+	layer_destroy(s_analog_wday_cal_layer);
+	
 	layer_destroy(s_analog_month_text_cal_layer);
+	layer_destroy(s_analog_day_text_cal_layer);
+	layer_destroy(s_analog_wday_text_cal_layer);
 
+	layer_destroy(s_analog_tick_layer);
 }
 
