@@ -63,6 +63,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 			tick_timer_service_unsubscribe();
 			tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 			units_changed |= MINUTE_UNIT;
+			refresh_analog_enable_second();
 		}
 	}
 	
@@ -103,6 +104,7 @@ void tap_handler(AccelAxisType axis, int32_t direction) {
 		enable_second = true;
 		tick_timer_service_unsubscribe();
 		tick_timer_service_subscribe(SECOND_UNIT, tick_handler);	
+		refresh_analog_enable_second();
 	}
 }
 

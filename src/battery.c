@@ -55,7 +55,6 @@ void battery_update_proc(Layer *layer, GContext *ctx) {
 	graphics_fill_radial(ctx, *bounds, GOvalScaleModeFillCircle, 5, data->battery_angle, TRIG_MAX_ANGLE);
 
 	graphics_context_set_text_color(ctx, default_color);
-	
 	graphics_draw_text(ctx, b_battery_level, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), *bounds, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw battery");
