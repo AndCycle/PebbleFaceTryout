@@ -23,25 +23,22 @@ enum {
 };
 
 enum {
-	PERSIST_KEY_WEATHER_FETCH_TIME,
-	PERSIST_KEY_WEATHER_TEMPERATURE,
-	PERSIST_KEY_WEATHER_TEMPERATURE_MIN,
-	PERSIST_KEY_WEATHER_TEMPERATURE_MAX,
-	PERSIST_KEY_WEATHER_CONDITION_ID,
-	PERSIST_KEY_WEATHER_ICON_ID
+	PERSIST_KEY_WEATHER_DATA,
 };
 
 const time_t valid_weather_age = 60*60*2;
 
-time_t last_weather_fetch_time = 0;
-int32_t last_weather_temperature = 0;
-int32_t last_weather_temperature_min = 0;
-int32_t last_weather_temperature_max = 0;
-int32_t last_weather_condition_id = 0;
-char last_weather_icon_id[4];
+struct weather_data_struct {
+	time_t fetch_time;
+	int32_t temperature;
+	int32_t temperature_min;
+	int32_t temperature_max;
+	int32_t condition_id;
+	char icon_id[4];
+} weather_data;
 
 bool weather_expire() {
-	if (time(NULL) > (last_weather_fetch_time+valid_weather_age)) {
+	if (time(NULL) > (weather_data.fetch_time + valid_weather_age)) {
 		return true;
 	}
 	return false;
@@ -91,15 +88,15 @@ void weather_display_refresh() {
   static char conditions_buffer[32];
   static char weather_layer_buffer[32];
 	
-	if (last_weather_fetch_time == 0) {
+	if (weather_data.fetch_time == 0) {
 		text_layer_set_text(s_weather_layer, "Loading...");
 		return;
 	}
 	
-	snprintf(temperature_buffer, sizeof(temperature_buffer), "%d°", (int)last_weather_temperature);
-	snprintf(temperature_min_buffer, sizeof(temperature_min_buffer), "%d°", (int)last_weather_temperature_min);
-	snprintf(temperature_max_buffer, sizeof(temperature_max_buffer), "%d°", (int)last_weather_temperature_max);
-	snprintf(conditions_buffer, sizeof(conditions_buffer), "%d", (int)last_weather_condition_id);
+	snprintf(temperature_buffer, sizeof(temperature_buffer), "%d°", (int)weather_data.temperature);
+	snprintf(temperature_min_buffer, sizeof(temperature_min_buffer), "%d°", (int)weather_data.temperature_min);
+	snprintf(temperature_max_buffer, sizeof(temperature_max_buffer), "%d°", (int)weather_data.temperature_max);
+	snprintf(conditions_buffer, sizeof(conditions_buffer), "%d", (int)weather_data.condition_id);
 		
   // Assemble full string and display
   snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%s, %s", temperature_buffer, conditions_buffer);
@@ -112,7 +109,7 @@ void weather_display_refresh() {
 	
 	gdraw_command_image_destroy(s_weather_cmd_img);
 	
-	switch (last_weather_condition_id) {
+	switch (weather_data.condition_id) {
 		//Group 2xx: Thunderstorm
 		case 200:
 		case 201:
@@ -245,41 +242,41 @@ void weather_display_refresh() {
 	
 	gbitmap_destroy(s_weather_icon_bitmap);
 	
-	if (strncmp(last_weather_icon_id, "01d", 4) == 0) {
+	if (strncmp(icon_id, "01d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_01D);
-	} else if (strncmp(last_weather_icon_id, "01n", 4) == 0) {
+	} else if (strncmp(icon_id, "01n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_01N);
-	} else if (strncmp(last_weather_icon_id, "02d", 4) == 0) {
+	} else if (strncmp(icon_id, "02d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_02D);
-	} else if (strncmp(last_weather_icon_id, "02n", 4) == 0) {
+	} else if (strncmp(icon_id, "02n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_02N);
-	} else if (strncmp(last_weather_icon_id, "03d", 4) == 0) {
+	} else if (strncmp(icon_id, "03d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_03D);
-	} else if (strncmp(last_weather_icon_id, "03n", 4) == 0) {
+	} else if (strncmp(icon_id, "03n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_03N);
-	} else if (strncmp(last_weather_icon_id, "04d", 4) == 0) {
+	} else if (strncmp(icon_id, "04d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_04D);
-	} else if (strncmp(last_weather_icon_id, "04n", 4) == 0) {
+	} else if (strncmp(icon_id, "04n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_04N);
-	} else if (strncmp(last_weather_icon_id, "09d", 4) == 0) {
+	} else if (strncmp(icon_id, "09d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_09D);
-	} else if (strncmp(last_weather_icon_id, "09n", 4) == 0) {
+	} else if (strncmp(icon_id, "09n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_09N);
-	} else if (strncmp(last_weather_icon_id, "10d", 4) == 0) {
+	} else if (strncmp(icon_id, "10d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_10D);
-	} else if (strncmp(last_weather_icon_id, "10n", 4) == 0) {
+	} else if (strncmp(icon_id, "10n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_10N);
-	} else if (strncmp(last_weather_icon_id, "11d", 4) == 0) {
+	} else if (strncmp(icon_id, "11d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_11D);
-	} else if (strncmp(last_weather_icon_id, "11n", 4) == 0) {
+	} else if (strncmp(icon_id, "11n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_11N);
-	} else if (strncmp(last_weather_icon_id, "13d", 4) == 0) {
+	} else if (strncmp(icon_id, "13d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_13D);
-	} else if (strncmp(last_weather_icon_id, "13n", 4) == 0) {
+	} else if (strncmp(icon_id, "13n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_13N);
-	} else if (strncmp(last_weather_icon_id, "50d", 4) == 0) {
+	} else if (strncmp(icon_id, "50d", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_50D);
-	} else if (strncmp(last_weather_icon_id, "50n", 4) == 0) {
+	} else if (strncmp(icon_id, "50n", 4) == 0) {
 		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_50N);
 	}
 	
@@ -300,25 +297,25 @@ void process_weather_app_message(DictionaryIterator *iterator, void *context) {
     switch(t->key) {
     case KEY_WEATHER_TEMPERATURE:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
-  		last_weather_temperature = t->value->int32;
+  		weather_data.temperature = t->value->int32;
       break;
 		case KEY_WEATHER_TEMPERATURE_MIN:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
-  		last_weather_temperature_min = t->value->int32;
+  		weather_data.temperature_min = t->value->int32;
       break;
 		case KEY_WEATHER_TEMPERATURE_MAX:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
-  		last_weather_temperature_max = t->value->int32;
+  		weather_data.temperature_max = t->value->int32;
       break;
     case KEY_WEATHER_CONDITIONS_ID:
 			//APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", t->value->cstring);
       //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "condition id %d", (int)t->value->int32);
-			last_weather_condition_id = t->value->int32;
+			weather_data.condition_id = t->value->int32;
       break;
 		case KEY_WEATHER_ICON_ID:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "icon id %s", t->value->cstring);
-			snprintf(last_weather_icon_id, sizeof(last_weather_icon_id), "%s", t->value->cstring);
+			snprintf(weather_data.icon_id, sizeof(weather_data.icon_id), "%s", t->value->cstring);
 			break;
 		case KEY_WEATHER:
 			// just identifier
@@ -332,7 +329,7 @@ void process_weather_app_message(DictionaryIterator *iterator, void *context) {
     t = dict_read_next(iterator);
   }
 
-	last_weather_fetch_time = time(NULL);
+	weather_data.fetch_time = time(NULL);
 
 	weather_display_refresh();
 }
@@ -395,32 +392,12 @@ void unload_weather(Window *window) {
 }
 
 void init_weather() {
-	if (persist_exists(PERSIST_KEY_WEATHER_FETCH_TIME)) {
+	if (persist_exists(PERSIST_KEY_WEATHER_DATA)) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "weather fetch last persist weather");
-		last_weather_fetch_time = persist_read_int(PERSIST_KEY_WEATHER_FETCH_TIME);
-	}
-	if (persist_exists(PERSIST_KEY_WEATHER_TEMPERATURE)) {
-		last_weather_temperature = persist_read_int(PERSIST_KEY_WEATHER_TEMPERATURE);
-	}
-	if (persist_exists(PERSIST_KEY_WEATHER_TEMPERATURE_MIN)) {
-		last_weather_temperature_min = persist_read_int(PERSIST_KEY_WEATHER_TEMPERATURE_MIN);
-	}
-	if (persist_exists(PERSIST_KEY_WEATHER_TEMPERATURE_MAX)) {
-		last_weather_temperature_max = persist_read_int(PERSIST_KEY_WEATHER_TEMPERATURE_MAX);
-	}
-	if (persist_exists(PERSIST_KEY_WEATHER_CONDITION_ID)) {
-		last_weather_condition_id = persist_read_int(PERSIST_KEY_WEATHER_CONDITION_ID);
-	}
-	if (persist_exists(PERSIST_KEY_WEATHER_ICON_ID)) {
-		persist_read_string(PERSIST_KEY_WEATHER_ICON_ID, last_weather_icon_id, 4);
+		persist_read_data(PERSIST_KEY_WEATHER_DATA, &weather_data, sizeof(struct weather_data_struct));
 	}
 }
 
 void deinit_weather() {
-	persist_write_int(PERSIST_KEY_WEATHER_FETCH_TIME, last_weather_fetch_time);
-	persist_write_int(PERSIST_KEY_WEATHER_TEMPERATURE, last_weather_temperature);
-	persist_write_int(PERSIST_KEY_WEATHER_TEMPERATURE_MIN, last_weather_temperature);
-	persist_write_int(PERSIST_KEY_WEATHER_TEMPERATURE_MAX, last_weather_temperature);
-	persist_write_int(PERSIST_KEY_WEATHER_CONDITION_ID, last_weather_condition_id);
-	persist_write_string(PERSIST_KEY_WEATHER_ICON_ID, last_weather_icon_id);
+	persist_write_data(PERSIST_KEY_WEATHER_DATA, &weather_data, sizeof(struct weather_data_struct));
 }
