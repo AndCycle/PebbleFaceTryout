@@ -13,7 +13,7 @@
         "location"
     ],
     "companyName": "AndCycle",
-    "longName": "test6",
+    "longName": "time 4391",
     "projectType": "native",
     "resources": {
         "media": [
@@ -160,12 +160,12 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "test6",
+    "shortName": "time 4391",
     "targetPlatforms": [
         "basalt"
     ],
     "uuid": "0c9a09ef-fe81-42c8-9f25-7c33da97347d",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }
