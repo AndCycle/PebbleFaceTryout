@@ -238,51 +238,6 @@ void weather_display_refresh() {
 	
 	layer_mark_dirty(s_weather_icon_draw_layer);
 	
-	/*
-	
-	gbitmap_destroy(s_weather_icon_bitmap);
-	
-	if (strncmp(icon_id, "01d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_01D);
-	} else if (strncmp(icon_id, "01n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_01N);
-	} else if (strncmp(icon_id, "02d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_02D);
-	} else if (strncmp(icon_id, "02n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_02N);
-	} else if (strncmp(icon_id, "03d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_03D);
-	} else if (strncmp(icon_id, "03n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_03N);
-	} else if (strncmp(icon_id, "04d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_04D);
-	} else if (strncmp(icon_id, "04n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_04N);
-	} else if (strncmp(icon_id, "09d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_09D);
-	} else if (strncmp(icon_id, "09n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_09N);
-	} else if (strncmp(icon_id, "10d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_10D);
-	} else if (strncmp(icon_id, "10n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_10N);
-	} else if (strncmp(icon_id, "11d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_11D);
-	} else if (strncmp(icon_id, "11n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_11N);
-	} else if (strncmp(icon_id, "13d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_13D);
-	} else if (strncmp(icon_id, "13n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_13N);
-	} else if (strncmp(icon_id, "50d", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_50D);
-	} else if (strncmp(icon_id, "50n", 4) == 0) {
-		s_weather_icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_OWM_50N);
-	}
-	
-	bitmap_layer_set_bitmap(s_weather_icon_layer, s_weather_icon_bitmap);
-	
-	*/
 }
 
 void process_weather_app_message(DictionaryIterator *iterator, void *context) {
