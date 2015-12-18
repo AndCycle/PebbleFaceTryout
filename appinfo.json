@@ -18,11 +18,6 @@
     "resources": {
         "media": [
             {
-                "file": "data/Pebble_25x25_Generic_warning.pdc",
-                "name": "GENERIC_WARNING",
-                "type": "raw"
-            },
-            {
                 "file": "data/Pebble_25x25_Sunny_day.pdc",
                 "name": "TIMELINE_SUN",
                 "type": "raw"
@@ -60,6 +55,11 @@
             {
                 "file": "data/Pebble_25x25_Generic_weather.pdc",
                 "name": "TIMELINE_WEATHER",
+                "type": "raw"
+            },
+            {
+                "file": "data/Pebble_25x25_Generic_warning.pdc",
+                "name": "GENERIC_WARNING",
                 "type": "raw"
             },
             {
