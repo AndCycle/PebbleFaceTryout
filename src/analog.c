@@ -59,6 +59,7 @@ typedef struct {
 	ANALOG_DATE_CIRCLE analog_date_circle;
 	int16_t inset_thickness;
 	int32_t circle_angle;
+	int32_t angle_start;
 } analog_date_circle_layer_data;
 
 typedef struct {
@@ -154,6 +155,7 @@ void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 	GRect bounds = data->bounds;
 	int16_t *inset_thickness = &data->inset_thickness;
 	int32_t *circle_angle = &data->circle_angle;
+	int32_t *angle_start = &data->angle_start;
 	
 	switch (data->analog_date_circle) {
 		case MONTH:
@@ -162,8 +164,6 @@ void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 				data->circle_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mon+1)+(TRIG_MAX_ANGLE*analog_tick_time->tm_mday/daysinmonth))/12;	
 			}
 				
-			graphics_context_set_fill_color(ctx, GColorLightGray);
-			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, TRIG_MAX_ANGLE/12, *circle_angle);	
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog month");
 
 			break;
@@ -174,8 +174,6 @@ void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 				data->circle_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_mday)/daysinmonth);
 			}
 			
-			graphics_context_set_fill_color(ctx, GColorLightGray);
-			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, 0, *circle_angle);
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog day");
 
 			break;
@@ -185,9 +183,6 @@ void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 				data->dirty = false;
 				data->circle_angle = (TRIG_MAX_ANGLE*(analog_tick_time->tm_wday+1)/7);
 			}
-		
-			graphics_context_set_fill_color(ctx, GColorLightGray);
-			graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, 0, *circle_angle);
 
 			/*
 			graphics_context_set_stroke_color(ctx, default_color);
@@ -201,6 +196,10 @@ void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 			break;
 		
 	}
+	
+	graphics_context_set_fill_color(ctx, GColorLightGray);
+	graphics_fill_radial(ctx, bounds, GOvalScaleModeFitCircle, *inset_thickness, *angle_start, *circle_angle);	
+	
 }
 
 void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
@@ -398,7 +397,7 @@ void refresh_analog_enable_second() {
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "change analog second status");
 }
 
-Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_date_circle, int16_t inset_thickness) {
+Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_date_circle, int16_t inset_thickness, int32_t angle_start) {
 	
 	Layer *temp_layer;
 	analog_date_circle_layer_data *temp_analog_date_circle_layer_data;
@@ -410,6 +409,7 @@ Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_d
 	temp_analog_date_circle_layer_data->dirty = true;
 	temp_analog_date_circle_layer_data->analog_date_circle = analog_date_circle;
 	temp_analog_date_circle_layer_data->inset_thickness = inset_thickness;
+	temp_analog_date_circle_layer_data->angle_start = angle_start;
 	temp_analog_date_circle_layer_data->bounds = layer_get_bounds(temp_layer);
 	
 	layer_set_update_proc(temp_layer, draw_analog_date_circle_layer);
@@ -511,9 +511,9 @@ void load_analog(Window *window) {
 	
 	// m:d:wday
 	
-	s_analog_month_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*0/3)), MONTH,	analog_radius*9/10/3);
-	s_analog_day_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius/3)), DAY, analog_radius*9/10/3);
-	s_analog_wday_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*2/3)), WDAY,	analog_radius*9/10/3);
+	s_analog_month_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*0/3)), MONTH,	analog_radius*9/10/3, TRIG_MAX_ANGLE/12);
+	s_analog_day_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius/3)), DAY, analog_radius*9/10/3, 0);
+	s_analog_wday_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*2/3)), WDAY,	analog_radius*9/10/3, 0);
 	
 	layer_add_child(s_analog_root_layer, s_analog_month_cal_layer);
 	layer_add_child(s_analog_root_layer, s_analog_day_cal_layer);
