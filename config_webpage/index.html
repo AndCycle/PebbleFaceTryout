@@ -148,9 +148,9 @@
       <div class="item-container-header">Temperature Unit</div>
       <div class="item-container-content">
         <label class="item tab-buttons" id="temperature_unit">
-          <a name="Kelvin" class="tab-button">Kelvin</a>
-          <a name="Celcius" class="tab-button active">Celcius</a>
-          <a name="Fahrenheit" class="tab-button">Fahrenheit</a>
+          <a name="tab-1" class="tab-button">Kelvin</a>
+          <a name="tab-1" class="tab-button active">Celcius</a>
+          <a name="tab-1" class="tab-button">Fahrenheit</a>
         </label>
       </div>
     </div>
@@ -213,7 +213,7 @@
     var temperature_unit = document.getElementById('temperature_unit').getElementsByClassName('active');
 	
 	var options = {
-		'temperature_unit': temperature_unit.name
+		'temperature_unit': temperature_unit.innerHTML
 	};
 	/*
     var backgroundColorPicker = document.getElementById('background_color_picker');
