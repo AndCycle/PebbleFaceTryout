@@ -8,7 +8,6 @@
 </head>
 <body>
   <form id="main-form">
-  <!--
     <div class="item-container">
       <div class="item-container-content">
         <div class="item">
@@ -143,18 +142,18 @@
         </label>
       </div>
     </div>
--->
+
     <div class="item-container">
-      <div class="item-container-header">Temperature Unit</div>
+      <div class="item-container-header">Tab Buttons</div>
       <div class="item-container-content">
-        <label class="item tab-buttons" id="temperature_unit">
-          <a name="Kelvin" class="tab-button">Kelvin</a>
-          <a name="Celcius" class="tab-button active">Celcius</a>
-          <a name="Fahrenheit" class="tab-button">Fahrenheit</a>
+        <label class="item tab-buttons">
+          <a name="tab-1" class="tab-button active">Both</a>
+          <a name="tab-1" class="tab-button">Celcius</a>
+          <a name="tab-1" class="tab-button">Fahrenheit</a>
         </label>
       </div>
     </div>
-<!--
+
     <div class="item-container">
       <div class="item-container-header">Slider</div>
       <div class="item-container-content">
@@ -199,72 +198,13 @@
         </div>
       </div>
     </div>
--->
+
     <div class="item-container">
       <div class="button-container">
-        <input type="button" class="item-button" value="SUBMIT">
+        <input type="button" class="item-button" value="SEND">
       </div>
     </div>
   </form>
   <script type="text/javascript" src="js/slate.js"></script>
-  <script>
-  function getConfigData() {
-  
-    var temperature_unit = document.getElementById('temperature_unit').getElementsByClassName('active');
-	
-	var options = {
-		'temperature_unit': temperature_unit.name
-	};
-	/*
-    var backgroundColorPicker = document.getElementById('background_color_picker');
-    var highContrastCheckbox = document.getElementById('high_contrast_checkbox');
- 
-    var options = {
-      'background_color': backgroundColorPicker.value,
-      'high_contrast': highContrastCheckbox.checked
-    };
-
-    // Save for next launch
-    localStorage['background_color'] = options['background_color'];
-    localStorage['high_contrast'] = options['high_contrast'];
-	*/
-    console.log('Got options: ' + JSON.stringify(options));
-    return options;
-  }
-
-  function getQueryParam(variable, defaultValue) {
-    var query = location.search.substring(1);
-    var vars = query.split('&');
-    for (var i = 0; i < vars.length; i++) {
-      var pair = vars[i].split('=');
-      if (pair[0] === variable) {
-        return decodeURIComponent(pair[1]);
-      }
-    }
-    return defaultValue || false;
-  }
- 
-  var submitButton = document.getElementById('submit_button');
-  submitButton.addEventListener('click', function() {
-    console.log('Submit');
-
-    // Set the return URL depending on the runtime environment
-    var return_to = getQueryParam('return_to', 'pebblejs://close#');
-    document.location = return_to + encodeURIComponent(JSON.stringify(getConfigData()));
-  });
-
-  (function() {
-	/*
-    var backgroundColorPicker = document.getElementById('background_color_picker');
-    var highContrastCheckbox = document.getElementById('high_contrast_checkbox');
-
-    // Load any previously saved configuration, if available
-    if(localStorage['high_contrast']) {
-      highContrastCheckbox.checked = JSON.parse(localStorage['high_contrast']);
-      backgroundColorPicker.value = localStorage['background_color'];
-    }
-	*/
-  })();
-  </script>
 </body>
 </html>
