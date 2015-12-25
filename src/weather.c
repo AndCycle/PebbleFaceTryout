@@ -38,10 +38,7 @@ struct weather_data_struct {
 } weather_data;
 
 bool weather_expire() {
-	if (time(NULL) > (weather_data.fetch_time + valid_weather_age)) {
-		return true;
-	}
-	return false;
+	return (time(NULL) > (weather_data.fetch_time + valid_weather_age));
 }
 
 void req_weather_update() {

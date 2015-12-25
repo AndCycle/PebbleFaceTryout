@@ -10,7 +10,8 @@
         "KEY_WEATHER_TEMPERATURE_MIN": 4
     },
     "capabilities": [
-        "location"
+        "location",
+        "configurable"
     ],
     "companyName": "AndCycle",
     "longName": "time 4391",

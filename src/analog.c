@@ -501,11 +501,7 @@ void load_analog(Window *window) {
 	
 	time_t now = time(NULL);
   analog_tick_time = localtime(&now);
-	
-	time_angle_data.hour = (TRIG_MAX_ANGLE * (((analog_tick_time->tm_hour % 12) * 6) + (analog_tick_time->tm_min / 10))) / (12 * 6);
-	time_angle_data.min = TRIG_MAX_ANGLE * analog_tick_time->tm_min / 60;
-	time_angle_data.sec = TRIG_MAX_ANGLE * analog_tick_time->tm_sec / 60;
-	
+
 	daysinmonth = days_in_month(analog_tick_time);
 	
 	
