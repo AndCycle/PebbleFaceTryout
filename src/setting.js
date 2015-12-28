@@ -5,4 +5,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
 
 Pebble.addEventListener('webviewclosed', function(e) {
   console.log('Configuration window returned: ' + e.response);
+  var configData = JSON.parse(decodeURIComponent(e.response));
+  console.log('Configuration page returned: ' + JSON.stringify(configData));
+
 });
