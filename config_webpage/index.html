@@ -274,10 +274,12 @@
 	var temperature_unit_children = document.querySelectorAll('#temperature_unit a');
 	//document.getElementById('temperature_unit').children;
 	for (var i = 0; i < temperature_unit_children.length; i++) {
+		console.log(i);
+		console.log(temperature_unit_children[i]);
 		if (temperature_unit_children[i].innerHTML == urlParams['temperature_unit']) {
 			temperature_unit_children[i].classList.add('active');
 		}
-		console.log(temperature_unit_children[i]);
+		
 	}
   }
   
