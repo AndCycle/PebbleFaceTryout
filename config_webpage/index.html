@@ -149,7 +149,7 @@
       <div class="item-container-content">
         <label class="item tab-buttons" id="temperature_unit">
           <a name="tab-1" class="tab-button">Kelvin</a>
-          <a name="tab-1" class="tab-button active">Celcius</a>
+          <a name="tab-1" class="tab-button">Celcius</a>
           <a name="tab-1" class="tab-button">Fahrenheit</a>
         </label>
       </div>
@@ -211,6 +211,7 @@
   function getConfigData() {
   
     var temperature_unit = document.getElementById('temperature_unit').getElementsByClassName('active')[0];
+	//querySelector('#temperature_unit .active')
 	
 	var options = {
 		'temperature_unit': temperature_unit.innerHTML
@@ -266,6 +267,7 @@
 	*/
   })();
   
+  
   // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript
   var urlParams;
 	(window.onpopstate = function () {
@@ -279,6 +281,16 @@
 		while (match = search.exec(query))
 		   urlParams[decode(match[1])] = decode(match[2]);
 	})();
+	
+	
+  function initConfigData() {
+	for (var p in document.getElementById('temperature_unit').children) {
+		if (p.innerHTML == urlParams['temperature_unit']) {
+			p.classList.add('active');
+		}
+		console.log(p);
+	}
+  }
 	
   </script>
 </body>
