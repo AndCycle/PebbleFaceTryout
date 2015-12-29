@@ -270,11 +270,13 @@
   var urlParams;
   
   function initConfigData() {
-	for (var p in document.getElementById('temperature_unit').children) {
-		if (p.innerHTML == urlParams['temperature_unit']) {
-			p.classList.add('active');
+	console.log('initConfigData');
+	var temperature_unit_children = document.getElementById('temperature_unit').children;
+	for (var i = 0; temperature_unit_children.length; i++) {
+		if (temperature_unit_children[i].innerHTML == urlParams['temperature_unit']) {
+			temperature_unit_children[i].classList.add('active');
 		}
-		console.log(p);
+		console.log(temperature_unit_children[i]);
 	}
   }
   
