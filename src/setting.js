@@ -14,7 +14,10 @@ Pebble.addEventListener('showConfiguration', function(e) {
 	return str.join("&");
 	}
 	
-  var url = 'https://rawgit.com/AndCycle/PebbleFaceTryout/master/config_webpage/index.html'+'?'+serialize(options);
+  var serverURL = 'https://rawgit.com/AndCycle/PebbleFaceTryout/master/config_webpage/index.html';
+  var serverURL = 'http://www.andcycle.idv.tw/~andcycle/tmp/dev/PebbleFaceTryout/config_webpage/index.html';
+	
+  var url = serverURL+'?'+serialize(options);
   
   console.log('Open configuration url: ' + url);
   
