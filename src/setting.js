@@ -4,6 +4,8 @@ Pebble.addEventListener('showConfiguration', function(e) {
         };
     
 
+    //test remote puch hook
+
   // http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object 
   var serialize = function(obj) {
       var str = [];
