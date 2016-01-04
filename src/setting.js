@@ -1,22 +1,22 @@
 Pebble.addEventListener('showConfiguration', function(e) {
-	var options = {
-			'temperature_unit': 'Kelvin'
-		};
-	
+    var options = {
+            'temperature_unit': 'Kelvin'
+        };
+    
 
-  // http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object	
+  // http://stackoverflow.com/questions/1714786/querystring-encoding-of-a-javascript-object 
   var serialize = function(obj) {
-	  var str = [];
-	  for(var p in obj)
-		if (obj.hasOwnProperty(p)) {
-		  str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-	  }
-	return str.join("&");
-	}
-	
+      var str = [];
+      for(var p in obj)
+        if (obj.hasOwnProperty(p)) {
+          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      }
+    return str.join("&");
+    }
+    
   var serverURL = 'https://rawgit.com/AndCycle/PebbleFaceTryout/master/config_webpage/index.html';
   var serverURL = 'http://www.andcycle.idv.tw/~andcycle/tmp/dev/PebbleFaceTryout/config_webpage/index.html';
-	
+    
   var url = serverURL+'?'+serialize(options);
   
   console.log('Open configuration url: ' + url);
