@@ -14,6 +14,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
     return str.join("&");
     }
     
+  //horror
   //////////// var serverURL = 'https://rawgit.com/AndCycle/PebbleFaceTryout/master/config_webpage/index.html';
   var serverURL = 'http://www.andcycle.idv.tw/~andcycle/tmp/dev/PebbleFaceTryout/config_webpage/index.html';
     
