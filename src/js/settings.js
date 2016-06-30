@@ -12,7 +12,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
           str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
       }
     return str.join("&");
-    }
+  }
     
   var serverURL = 'http://www.andcycle.idv.tw/~andcycle/tmp/dev/PebbleFaceTryout/config_webpage/index.html';
     

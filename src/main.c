@@ -10,14 +10,6 @@
 
 #include "extra.h"
   
-//#define KEY_TEMPERATURE 0
-//#define KEY_CONDITIONS 1
-
-enum {
-	KEY_JS_READY = 0,
-	KEY_WEATHER = 2,
-};
-
 Window *s_main_window;
 
 GColor default_color;
@@ -29,11 +21,13 @@ const time_t enable_second_age = 60;
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
 	
-	if (dict_find(iterator, KEY_JS_READY)) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "message inbox received");
+  
+	if (dict_find(iterator, MESSAGE_KEY_JS_READY)) {
 		req_weather_update();
 	}
 	
-	if (dict_find(iterator, KEY_WEATHER)) {
+	if (dict_find(iterator, MESSAGE_KEY_WEATHER)) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "process weather req result");
 		process_weather_app_message(iterator, context);
 	}

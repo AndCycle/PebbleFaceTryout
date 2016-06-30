@@ -1,0 +1,90 @@
+{
+    "author": "AndCycle",
+    "dependencies": {
+        "pebble-clay": "^1.0.1"
+    },
+    "keywords": [],
+    "name": "time-4391",
+    "pebble": {
+        "capabilities": [
+            "location",
+            "configurable"
+        ],
+        "displayName": "time 4391",
+        "enableMultiJS": true,
+        "messageKeys": [
+            "JS_READY",
+            "FUNC",
+            "WEATHER",
+            "WEATHER_TEMPERATURE",
+            "WEATHER_TEMPERATURE_MIN",
+            "WEATHER_TEMPERATURE_MAX",
+            "WEATHER_CONDITIONS_ID",
+            "WEATHER_ICON_ID"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "data/Pebble_25x25_Sunny_day.pdc",
+                    "name": "TIMELINE_SUN",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Raining_and_snowing.pdc",
+                    "name": "RAINING_AND_SNOWING",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Partly_cloudy.pdc",
+                    "name": "PARTLY_CLOUDY",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Light_snow.pdc",
+                    "name": "LIGHT_SNOW",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Light_rain.pdc",
+                    "name": "LIGHT_RAIN",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Heavy_snow.pdc",
+                    "name": "HEAVY_SNOW",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Heavy_rain.pdc",
+                    "name": "HEAVY_RAIN",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Generic_weather.pdc",
+                    "name": "TIMELINE_WEATHER",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Generic_warning.pdc",
+                    "name": "GENERIC_WARNING",
+                    "type": "raw"
+                },
+                {
+                    "file": "data/Pebble_25x25_Cloudy_day.pdc",
+                    "name": "CLOUDY_DAY",
+                    "type": "raw"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "basalt"
+        ],
+        "uuid": "0c9a09ef-fe81-42c8-9f25-7c33da97347d",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.2.0"
+}

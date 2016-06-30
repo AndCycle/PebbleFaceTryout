@@ -1,3 +1,7 @@
+var Clay = require('pebble-clay');
+var clayConfig = require('./config');
+var clay = new Clay(clayConfig);
+
 var myAPIKey = '6d6966de2aa0baf93f6d06d7ef536798'; // I know it's a bad practice to put key here, but I haven't finish config page
 
 var xhrRequest = function (url, type, callback) {
@@ -42,12 +46,12 @@ function locationSuccess(pos) {
 			
       // Assemble dictionary using our keys
       var dictionary = {
-				"KEY_WEATHER": true,
-        "KEY_WEATHER_TEMPERATURE": temperature,
-				"KEY_WEATHER_TEMPERATURE_MIN": temperature_min,
-				"KEY_WEATHER_TEMPERATURE_MAX": temperature_max,
-        "KEY_WEATHER_CONDITIONS_ID": conditions,
-				"KEY_WEATHER_ICON_ID": icon
+				"WEATHER": true,
+        "WEATHER_TEMPERATURE": temperature,
+				"WEATHER_TEMPERATURE_MIN": temperature_min,
+				"WEATHER_TEMPERATURE_MAX": temperature_max,
+        "WEATHER_CONDITIONS_ID": conditions,
+				"WEATHER_ICON_ID": icon
       };
 
       // Send to Pebble
@@ -82,7 +86,7 @@ function announce_ready(delay_ms) {
 
 	// Assemble dictionary using our keys
 	var dictionary = {
-		"KEY_JS_READY": true,
+		"JS_READY": true,
 	};
 
 	// Send to Pebble
@@ -117,7 +121,8 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function(e) {
 		console.log("AppMessage received!");
-		if(e.payload.KEY_WEATHER) {
+    var dict = e.payload;
+		if(dict["WEATHER"]) {
 			console.log("js got weather call");
 			getWeather();
 		}

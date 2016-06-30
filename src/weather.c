@@ -14,15 +14,6 @@ TextLayer *s_weather_temp_max;
 GDrawCommandImage *s_weather_cmd_img;
 
 enum {
-	KEY_WEATHER = 2,
-	KEY_WEATHER_TEMPERATURE = 3,
-	KEY_WEATHER_TEMPERATURE_MIN = 4,
-	KEY_WEATHER_TEMPERATURE_MAX = 5,
-	KEY_WEATHER_CONDITIONS_ID = 6,
-	KEY_WEATHER_ICON_ID = 7
-};
-
-enum {
 	PERSIST_KEY_WEATHER_DATA,
 };
 
@@ -56,7 +47,7 @@ void req_weather_update() {
 	// Add a key-value pair
 	//dict_write_uint8(iter, 0, 0);
 	//dict_write_cstring(iter, KEY_FUNC, "weather");
-	dict_write_uint8(iter, KEY_WEATHER, true);
+	dict_write_uint8(iter, MESSAGE_KEY_WEATHER, true);
 
 	dict_write_end(iter);
 	
@@ -240,6 +231,33 @@ void weather_display_refresh() {
 void process_weather_app_message(DictionaryIterator *iterator, void *context) {
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "do weather update");
 	
+  Tuple *t;
+  t = dict_find(iterator, MESSAGE_KEY_WEATHER_TEMPERATURE);
+  if (t) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
+    weather_data.temperature = t->value->int32;  
+  }
+  
+  
+  t = dict_find(iterator, MESSAGE_KEY_WEATHER_TEMPERATURE_MIN);
+  if (t) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature min %d", (int)t->value->int32);
+    weather_data.temperature_min = t->value->int32;
+  }
+  
+  t = dict_find(iterator, MESSAGE_KEY_WEATHER_TEMPERATURE_MAX);
+  if (t) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature max %d", (int)t->value->int32);
+    weather_data.temperature_max = t->value->int32;
+  }
+  
+  t = dict_find(iterator, MESSAGE_KEY_WEATHER_CONDITIONS_ID);
+  if (t) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "condition id %d", (int)t->value->int32);
+    weather_data.condition_id = t->value->int32;
+  }
+  
+  /*
   // Read first item
   Tuple *t = dict_read_first(iterator);
 
@@ -247,29 +265,29 @@ void process_weather_app_message(DictionaryIterator *iterator, void *context) {
   while(t != NULL) {
     // Which key was received?
     switch(t->key) {
-    case KEY_WEATHER_TEMPERATURE:
+    case MESSAGE_KEY_WEATHER_TEMPERATURE:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
   		weather_data.temperature = t->value->int32;
       break;
-		case KEY_WEATHER_TEMPERATURE_MIN:
+		case MESSAGE_KEY_WEATHER_TEMPERATURE_MIN:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
   		weather_data.temperature_min = t->value->int32;
       break;
-		case KEY_WEATHER_TEMPERATURE_MAX:
+		case MESSAGE_KEY_WEATHER_TEMPERATURE_MAX:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "temperature %d", (int)t->value->int32);
   		weather_data.temperature_max = t->value->int32;
       break;
-    case KEY_WEATHER_CONDITIONS_ID:
+    case MESSAGE_KEY_WEATHER_CONDITIONS_ID:
 			//APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", t->value->cstring);
       //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "condition id %d", (int)t->value->int32);
 			weather_data.condition_id = t->value->int32;
       break;
-		case KEY_WEATHER_ICON_ID:
+		case MESSAGE_KEY_WEATHER_ICON_ID:
 			APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "icon id %s", t->value->cstring);
 			snprintf(weather_data.icon_id, sizeof(weather_data.icon_id), "%s", t->value->cstring);
 			break;
-		case KEY_WEATHER:
+		case MESSAGE_KEY_WEATHER:
 			// just identifier
 			break;
     default:
@@ -280,6 +298,8 @@ void process_weather_app_message(DictionaryIterator *iterator, void *context) {
     // Look for next item
     t = dict_read_next(iterator);
   }
+
+  */
 
 	weather_data.fetch_time = time(NULL);
 
