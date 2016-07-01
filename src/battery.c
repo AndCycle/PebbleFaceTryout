@@ -2,10 +2,10 @@
 #include "battery.h"
 #include "main.h"
 
-Layer *s_battery_layer;
-TextLayer *s_battery_text_layer;
+static Layer *s_battery_layer;
+static TextLayer *s_battery_text_layer;
 
-BatteryChargeState battery_state;
+static BatteryChargeState battery_state;
 
 typedef struct {
 	GRect bounds;

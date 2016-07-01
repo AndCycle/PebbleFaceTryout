@@ -1,6 +1,8 @@
 #include <pebble.h>
 #include "main.h"
 
+#include "setting.h"
+
 #include "calendar.h"
 #include "analog.h"
 #include "digit.h"
@@ -102,6 +104,11 @@ void tap_handler(AccelAxisType axis, int32_t direction) {
 }
 
 
+static void init_setting() {
+  
+  setting_check_ver();
+}
+
 static void init() {
 	
 	default_color = GColorBlack;
@@ -115,6 +122,8 @@ static void init() {
 	enable_second = false;
 	//enable_second = true;
 	
+  init_setting();
+  
 	init_weather();
 	
 	// Create main Window element and assign to pointer

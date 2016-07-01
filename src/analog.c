@@ -3,26 +3,26 @@
 #include "extra.h"
 #include "main.h"
 
-Layer *s_analog_root_layer;
+static Layer *s_analog_root_layer;
 
-Layer *s_analog_hand_layer;
-Layer *s_analog_hour_hand_layer;
-Layer *s_analog_min_hand_layer;
-Layer *s_analog_sec_hand_layer;
+static Layer *s_analog_hand_layer;
+static Layer *s_analog_hour_hand_layer;
+static Layer *s_analog_min_hand_layer;
+static Layer *s_analog_sec_hand_layer;
 
-Layer *s_analog_cal_layer;
-Layer *s_analog_wday_cal_layer;
-Layer *s_analog_wday_text_cal_layer;
-Layer *s_analog_day_cal_layer;
+static Layer *s_analog_cal_layer;
+static Layer *s_analog_wday_cal_layer;
+static Layer *s_analog_wday_text_cal_layer;
+static Layer *s_analog_day_cal_layer;
 
-Layer *s_analog_text_cal_layer;
-Layer *s_analog_day_text_cal_layer;
-Layer *s_analog_month_cal_layer;
-Layer *s_analog_month_text_cal_layer;
+static Layer *s_analog_text_cal_layer;
+static Layer *s_analog_day_text_cal_layer;
+static Layer *s_analog_month_cal_layer;
+static Layer *s_analog_month_text_cal_layer;
 
-Layer *s_analog_tick_layer;
+static Layer *s_analog_tick_layer;
 
-struct tm *analog_tick_time;
+static struct tm *analog_tick_time;
 
 typedef enum {
 	HOUR, 
@@ -49,7 +49,7 @@ typedef struct {
 	int32_t analog_radius;
 } analog_time_layer_data;
 
-int8_t daysinmonth;
+static int8_t daysinmonth;
 
 typedef struct {
 	GRect bounds;
@@ -74,7 +74,7 @@ typedef struct {
 	GRect text_grect[12];
 } analog_tick_layer_data;
 
-void draw_analog_time_layer(Layer *layer, GContext *ctx) {
+static void draw_analog_time_layer(Layer *layer, GContext *ctx) {
 	
 	analog_time_layer_data *data = layer_get_data(layer);
 	
@@ -132,7 +132,7 @@ void draw_analog_time_layer(Layer *layer, GContext *ctx) {
 	}
 }
 
-void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
+static void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 	
 	analog_date_circle_layer_data *data = layer_get_data(layer);
 
@@ -177,7 +177,7 @@ void draw_analog_date_circle_layer(Layer *layer, GContext *ctx) {
 	
 }
 
-void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
+static void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
 	
 	analog_date_text_layer_data *data = layer_get_data(layer);
 	GRect bounds = data->bounds;
@@ -261,7 +261,7 @@ void draw_analog_date_text_layer(Layer *layer, GContext *ctx) {
 	
 }
 
-void draw_tick_layer(Layer *layer, GContext *ctx) {
+static void draw_tick_layer(Layer *layer, GContext *ctx) {
 	
 	analog_tick_layer_data *data = layer_get_data(layer);
 
@@ -349,7 +349,7 @@ void refresh_analog_enable_second() {
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "change analog second status");
 }
 
-Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_date_circle, int16_t inset_thickness, int32_t angle_start) {
+static Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_date_circle, int16_t inset_thickness, int32_t angle_start) {
 	
 	Layer *temp_layer;
 	analog_date_circle_layer_data *temp_analog_date_circle_layer_data;
@@ -368,7 +368,7 @@ Layer * analog_date_circle_layer_create(GRect frame, ANALOG_DATE_CIRCLE analog_d
 	return temp_layer;
 }
 
-Layer * analog_date_text_layer_create(GRect frame, ANALOG_DATE_TEXT analog_date_text) {
+static Layer * analog_date_text_layer_create(GRect frame, ANALOG_DATE_TEXT analog_date_text) {
 	
 	Layer *temp_layer;
 	analog_date_text_layer_data *temp_analog_date_text_layer_data;
@@ -384,7 +384,7 @@ Layer * analog_date_text_layer_create(GRect frame, ANALOG_DATE_TEXT analog_date_
 }
 
 
-Layer * analog_time_layer_create(GRect frame, ANALOG_HAND analog_hand, int32_t analog_radius, int32_t hand_length) {
+static Layer * analog_time_layer_create(GRect frame, ANALOG_HAND analog_hand, int32_t analog_radius, int32_t hand_length) {
 	
 	Layer *temp_layer;
 	analog_time_layer_data *temp_time_layer_data;
@@ -402,7 +402,7 @@ Layer * analog_time_layer_create(GRect frame, ANALOG_HAND analog_hand, int32_t a
 }
 
 
-Layer * tick_layer_create(GRect frame) {
+static Layer * tick_layer_create(GRect frame) {
 	Layer * temp_layer;
 	analog_tick_layer_data * temp_tick_layer_data;
 	
@@ -456,9 +456,9 @@ void load_analog(Window *window) {
 	
 	// m:d:wday
 	
-	s_analog_month_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*0/3)), MONTH,	analog_radius*9/10/3, 0);
-	s_analog_day_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius/3)), DAY, analog_radius*9/10/3, 0);
-	s_analog_wday_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*2/3)), WDAY,	analog_radius*9/10/3, 0);
+	s_analog_month_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*0/3+analog_radius/48)), MONTH,	analog_radius*9/10/3, 0);
+	s_analog_day_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*1/3+analog_radius/48)), DAY, analog_radius*9/10/3, 0);
+	s_analog_wday_cal_layer = analog_date_circle_layer_create(grect_inset(analog_grect,  GEdgeInsets(analog_radius*2/3+analog_radius/48)), WDAY,	analog_radius*9/10/3, 0);
 	
   s_analog_cal_layer = layer_create(analog_grect);
   

@@ -1,6 +1,6 @@
 #pragma once
 
-extern TextLayer *s_weather_layer;
+//extern TextLayer *s_weather_layer;
 
 void req_weather_update();
 void process_weather_app_message(DictionaryIterator *, void *);

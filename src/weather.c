@@ -2,24 +2,24 @@
 #include "weather.h"
 #include "main.h"
 
-TextLayer *s_weather_layer;
+static TextLayer *s_weather_layer;
 
-GBitmap *s_weather_icon_bitmap;
-BitmapLayer *s_weather_icon_layer;
-Layer *s_weather_icon_draw_layer;
+static GBitmap *s_weather_icon_bitmap;
+static BitmapLayer *s_weather_icon_layer;
+static Layer *s_weather_icon_draw_layer;
 
-TextLayer *s_weather_temp_min;
-TextLayer *s_weather_temp_max;
+static TextLayer *s_weather_temp_min;
+static TextLayer *s_weather_temp_max;
 
-GDrawCommandImage *s_weather_cmd_img;
+static GDrawCommandImage *s_weather_cmd_img;
 
 enum {
 	PERSIST_KEY_WEATHER_DATA,
 };
 
-const time_t valid_weather_age = 60*60*2;
+static const time_t valid_weather_age = 60*60*2;
 
-struct weather_data_struct {
+static struct weather_data_struct {
 	time_t fetch_time;
 	int32_t temperature;
 	int32_t temperature_min;
@@ -28,7 +28,7 @@ struct weather_data_struct {
 	char icon_id[4];
 } weather_data;
 
-bool weather_expire() {
+static bool weather_expire() {
 	return (time(NULL) > (weather_data.fetch_time + valid_weather_age));
 }
 
@@ -65,7 +65,7 @@ static void update_weather_cmd_img_proc(Layer *layer, GContext *ctx) {
   }
 }
 
-void weather_display_refresh() {
+static void weather_display_refresh() {
 	
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "weather display refresh");
 	

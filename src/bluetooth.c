@@ -2,11 +2,11 @@
 #include "bluetooth.h"
 #include "main.h"
 
-Layer *s_bluetooth_layer;
+static Layer *s_bluetooth_layer;
 
 #define BIZoom 4
 
-const GPathInfo BLUETOOTH_PATH_INFO = {
+static const GPathInfo BLUETOOTH_PATH_INFO = {
   .num_points = 7,
 	.points = (GPoint []) {
 		{0, 1*BIZoom}, {2*BIZoom, 3*BIZoom}, 	{1*BIZoom, 4*BIZoom}, {1*BIZoom, 0}, {2*BIZoom, 1*BIZoom}, 	{0, 3*BIZoom}, {1*BIZoom, 2*BIZoom}
@@ -23,7 +23,7 @@ typedef struct {
 	GPath *bluetooth_path_ptr;
 } bluetooth_layer_data;
 
-bool bluetooth_connected;
+static bool bluetooth_connected;
 
 void bluetooth_handler(bool connected) {
 	if (bluetooth_connected == connected) {
@@ -40,7 +40,7 @@ void bluetooth_handler(bool connected) {
   }
 }
 
-void update_bluetooth_proc(Layer *layer, GContext *ctx) {
+static void update_bluetooth_proc(Layer *layer, GContext *ctx) {
 	bluetooth_layer_data *data = layer_get_data(layer);
 	GRect *bounds = &data->bounds;
 	GPath *bluetooth_path_ptr = data->bluetooth_path_ptr;

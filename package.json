@@ -20,7 +20,14 @@
             "WEATHER_TEMPERATURE_MIN",
             "WEATHER_TEMPERATURE_MAX",
             "WEATHER_CONDITIONS_ID",
-            "WEATHER_ICON_ID"
+            "WEATHER_ICON_ID",
+            "SecondHand",
+            "DateTextBox",
+            "TapTimeout",
+            "TapSecondHand",
+            "ShowWeather",
+            "TemperatureUnit",
+            "OpenWeatherMapAPPID"
         ],
         "projectType": "native",
         "resources": {
