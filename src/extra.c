@@ -11,6 +11,9 @@ int8_t days_in_month(struct tm *t) {
 
 bool angle_check(int32_t a, int32_t b, int32_t range) {
 
+  a %= TRIG_MAX_ANGLE;
+  b %= TRIG_MAX_ANGLE;
+  
 	if ((a-range) <= b && b <= (a+range)) {
 		return true;
 	} else if ((a-range) <= (b+TRIG_MAX_ANGLE) && (b+TRIG_MAX_ANGLE) <= (a+range)) {
