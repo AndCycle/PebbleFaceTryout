@@ -50,7 +50,7 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	
-  tick_time = sanitize_localtime(); //there seems no guarantee on tick_time, make our own.
+  struct tm * local_tick_time = sanitize_localtime(); //there seems no guarantee on tick_time, make our own.
 	
 	if (enable_second) {
 		if (time(NULL) > enable_second_expire) {
@@ -63,10 +63,10 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 		}
 	}
 	
-  digit_tick_handler(tick_time, units_changed);
-	analog_tick_handler(tick_time, units_changed);
+  digit_tick_handler(local_tick_time, units_changed);
+	analog_tick_handler(local_tick_time, units_changed);
 	//calendar_tick_handler(tick_time, units_changed);
-	weather_handler(tick_time, units_changed);
+	weather_handler(local_tick_time, units_changed);
 }
 
 
@@ -109,6 +109,16 @@ static void init_setting() {
   setting_check_ver();
 }
 
+static void reg_tick_handler() {
+  
+  TimeUnits req_time_units = (TimeUnits)NULL;
+  req_time_units |= analog_time_units();
+  req_time_units |= weather_time_units();
+  
+	tick_timer_service_subscribe(req_time_units, tick_handler);
+  
+}
+
 static void init() {
 	
 	default_color = GColorBlack;
@@ -118,9 +128,6 @@ static void init() {
 	default_color = GColorWhite;
 	default_bg_color = GColorBlack;
 	*/
-	
-	enable_second = false;
-	//enable_second = true;
 	
   init_setting();
   
@@ -138,12 +145,8 @@ static void init() {
 
 
 	// Register with TickTimerService
-	
-	if (enable_second) {
-		tick_timer_service_subscribe(SECOND_UNIT, tick_handler);	
-	} else {
-		tick_timer_service_subscribe(MINUTE_UNIT|HOUR_UNIT|DAY_UNIT|MONTH_UNIT|YEAR_UNIT, tick_handler);
-	}
+
+  reg_tick_handler();
 
 	//accel_tap_service_subscribe(tap_handler);
 

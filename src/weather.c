@@ -306,6 +306,11 @@ void process_weather_app_message(DictionaryIterator *iterator, void *context) {
 	weather_display_refresh();
 }
 
+TimeUnits weather_time_units(void) {
+  
+  return HOUR_UNIT;
+}
+
 void weather_handler(struct tm * tick_time, TimeUnits units_changed) {
 	  
 	//APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "weather min %d", tick_time->tm_min);

@@ -305,6 +305,11 @@ static void draw_tick_layer(Layer *layer, GContext *ctx) {
 	APP_LOG(APP_LOG_LEVEL_DEBUG_VERBOSE, "%s", "Draw analog tick");
 }
 
+TimeUnits analog_time_units(void) {
+  
+  return MINUTE_UNIT|HOUR_UNIT|DAY_UNIT|MONTH_UNIT|YEAR_UNIT;
+}
+
 void analog_tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	
 	analog_tick_time = tick_time;

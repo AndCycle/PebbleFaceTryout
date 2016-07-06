@@ -5,6 +5,7 @@
 void req_weather_update();
 void process_weather_app_message(DictionaryIterator *, void *);
 
+TimeUnits weather_time_units(void);
 void weather_handler(struct tm *, TimeUnits);
 
 void load_weather(Window *);
